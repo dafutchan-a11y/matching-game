@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2E7D4F">
+<title>Gabe’s Animal Games</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#DDEFE3; --card:#FFFFFF; --ink:#16321F; --soft:#4C6B57;
+  --leaf:#2E7D4F; --leaf-ink:#FFFFFF; --sun:#F7C948; --sun-ink:#3A2A00;
+  --berry:#D64550; --water:#1E7F8C; --line:#B9D8C4;
+  --display:"Baloo 2","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,"Segoe UI",sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme:dark;
+    --bg:#10241A; --card:#1B3A2A; --ink:#EAF5EC; --soft:#A9C9B4;
+    --leaf:#3F9A65; --leaf-ink:#FFFFFF; --sun:#F7C948; --sun-ink:#3A2A00;
+    --berry:#FF7A85; --water:#5CC6D0; --line:#2E5A42;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:20px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+#app{max-width:520px;margin:0 auto;padding:14px 16px 28px}
+h1,h2{font-family:var(--display);font-weight:800;line-height:1.05;margin:0}
+h1{font-size:2.1rem}
+h2{font-size:1.35rem;margin:22px 0 10px}
+p{margin:0 0 12px}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,a:focus-visible{outline:4px solid var(--water);outline-offset:3px}
+
+.top{display:flex;align-items:center;gap:12px;margin-bottom:14px;min-height:52px}
+.top h1{flex:1;font-size:1.6rem}
+.back{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+.stars{background:var(--sun);color:var(--sun-ink);border-radius:999px;padding:6px 14px;font-weight:700;white-space:nowrap}
+
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:6px 0 4px}
+.tiles{display:grid;gap:10px}
+.tile{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border-radius:22px;padding:14px 16px;border-bottom:5px solid var(--line);width:100%}
+.tile:active{transform:translateY(2px);border-bottom-width:3px}
+.tile .em{font-size:2.2rem;width:54px;height:54px;display:grid;place-items:center;background:var(--bg);border-radius:16px;flex:none}
+.tile b{font-family:var(--display);font-size:1.3rem;display:block;line-height:1.1}
+.tile span{color:var(--soft);font-size:.95rem}
+.linkish{display:block;margin:26px auto 0;color:var(--soft);text-decoration:underline;font-size:.95rem}
+
+.photo{width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:var(--line);display:grid;place-items:center}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo .em{font-size:4.5rem}
+.small .photo .em{font-size:2.4rem}
+
+.big{display:block;width:100%;min-height:60px;border-radius:18px;padding:12px 16px;font-weight:700;font-size:1.15rem;background:var(--leaf);color:var(--leaf-ink);border-bottom:5px solid rgba(0,0,0,.25);margin-top:12px}
+.big.alt{background:var(--card);color:var(--ink);border:2px solid var(--line);border-bottom-width:5px}
+.big:active{transform:translateY(2px)}
+.row{display:flex;gap:10px}
+.row .big{flex:1}
+
+.choices{display:grid;gap:10px;margin-top:14px}
+.choice{min-height:60px;border-radius:18px;background:var(--card);border:3px solid var(--line);font-weight:700;font-size:1.15rem;padding:10px 14px;text-align:center}
+.choice.right{background:var(--leaf);border-color:var(--leaf);color:var(--leaf-ink)}
+.choice.wrong{border-color:var(--berry);color:var(--berry);opacity:.6;text-decoration:line-through}
+.count{color:var(--soft);font-size:.95rem;margin-bottom:8px}
+.say{background:var(--sun);color:var(--sun-ink);border-radius:18px;padding:12px 16px;margin-top:14px;font-weight:700}
+.clue{background:var(--card);border-radius:18px;padding:14px 16px;margin-bottom:10px;border-left:8px solid var(--water);font-size:1.2rem}
+
+/* flip card */
+.flipwrap{perspective:1000px}
+.flip{position:relative;width:100%;aspect-ratio:4/4.4;transform-style:preserve-3d;transition:transform .45s;display:block}
+.flip.on{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border-radius:24px;padding:14px;display:flex;flex-direction:column;justify-content:center;gap:10px;text-align:center;border-bottom:6px solid var(--line)}
+.face.b{transform:rotateY(180deg)}
+.face .name{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.05}
+.face .kind{color:var(--water);font-weight:700}
+.face .hint{color:var(--soft);font-size:.95rem}
+
+/* matching */
+.grid{display:grid;gap:8px}
+.grid.c3{grid-template-columns:repeat(3,1fr)}
+.grid.c2{grid-template-columns:repeat(2,1fr)}
+.mcard{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--leaf);display:grid;place-items:center;font-size:2rem;border-bottom:4px solid rgba(0,0,0,.25);width:100%}
+.mcard .photo{position:absolute;inset:0;border-radius:0;aspect-ratio:auto;height:100%;display:none}
+.mcard.up .photo{display:grid}
+.mcard.done{outline:4px solid var(--sun);outline-offset:-4px}
+.ccard{background:var(--card);border-radius:18px;padding:8px;border:4px solid transparent;text-align:center;font-weight:700;font-size:1rem;width:100%}
+.ccard .photo{border-radius:12px;margin-bottom:6px}
+.ccard.sel{border-color:var(--water)}
+.ccard.done{border-color:var(--sun);opacity:.55}
+.ccard.no{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+.done-box{text-align:center;padding:30px 10px}
+.done-box .em{font-size:4rem}
+.credits li{font-size:.9rem;margin-bottom:8px;color:var(--soft)}
+.credits a{color:var(--water)}
+.credits ul{padding-left:20px}
+
+@media (prefers-reduced-motion: reduce){
+  .flip{transition:none}
+  .ccard.no{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   ANIMAL DATA
+   To add an animal: copy a line, change the id, name, Wikipedia
+   article title (wiki), emoji, group and three clues (hardest
+   clue first, easiest last).
+   If the photo Wikipedia picks is a poor one, add
+   file:"Exact file name on Commons.jpg" to that line.
+   ============================================================ */
+const A = [
+ // Birds
+ {id:"bluejay",name:"Blue jay",wiki:"Blue jay",emoji:"🐦",group:"Bird",clues:["I am loud and I love acorns.","I have a pointy crest on my head.","I am a bright blue bird."]},
+ {id:"cardinal",name:"Northern cardinal",wiki:"Northern cardinal",emoji:"🐦",group:"Bird",clues:["I whistle from the treetops, even in winter.","I have a crest and a thick orange beak.","The male is bright red all over."]},
+ {id:"barnowl",name:"Barn owl",wiki:"Barn owl",emoji:"🦉",group:"Bird",clues:["I hunt at night without a sound.","My face is shaped like a heart.","I am a pale owl that likes old barns."]},
+ {id:"osprey",name:"Osprey",wiki:"Osprey",emoji:"🦅",group:"Bird",clues:["I build a big stick nest near water.","I dive feet first to catch fish.","People call me the fish hawk."]},
+ {id:"peregrine",name:"Peregrine falcon",wiki:"Peregrine falcon",emoji:"🦅",group:"Bird",clues:["I nest on cliffs and tall buildings.","I catch other birds in the air.","When I dive, I am the fastest animal in the world."]},
+ {id:"puffin",name:"Atlantic puffin",wiki:"Atlantic puffin",emoji:"🐧",group:"Bird",clues:["I dig a burrow by the sea for my egg.","I can hold lots of little fish in my beak at once.","I am black and white with a big bright beak."]},
+ {id:"penguin",name:"Emperor penguin",wiki:"Emperor penguin",emoji:"🐧",group:"Bird",clues:["The dad keeps the egg warm on his feet.","I live on the ice in Antarctica.","I am a bird that cannot fly, but I swim very well."]},
+ {id:"hummingbird",name:"Ruby-throated hummingbird",wiki:"Ruby-throated hummingbird",emoji:"🐦",group:"Bird",clues:["I drink sweet nectar from flowers.","My wings beat so fast they hum.","I am tiny and I can fly backwards."]},
+ {id:"heron",name:"Great blue heron",wiki:"Great blue heron",emoji:"🐦",group:"Bird",clues:["I stand very still in shallow water.","I grab fish with my long sharp beak.","I am a tall grey-blue bird with long legs."]},
+ {id:"robin",name:"American robin",wiki:"American robin",emoji:"🐦",group:"Bird",clues:["I pull worms out of the grass.","My eggs are bright blue.","I have an orange-red chest."]},
+ {id:"loon",name:"Common loon",wiki:"Common loon",emoji:"🦆",group:"Bird",clues:["My call sounds spooky across the lake.","I dive deep to catch fish.","I am on the Canadian one dollar coin."]},
+ {id:"baldeagle",name:"Bald eagle",wiki:"Bald eagle",emoji:"🦅",group:"Bird",clues:["I build a huge nest of sticks.","I have a hooked yellow beak.","I am a big dark bird with a white head."]},
+ {id:"chickadee",name:"Black-capped chickadee",wiki:"Black-capped chickadee",emoji:"🐦",group:"Bird",clues:["I hide seeds to eat later.","I have a black cap and a black bib.","My call sounds like chick-a-dee-dee-dee."]},
+ {id:"snowyowl",name:"Snowy owl",wiki:"Snowy owl",emoji:"🦉",group:"Bird",clues:["I live in the cold Arctic.","I hunt lemmings, even in the daytime.","I am a big white owl with yellow eyes."]},
+ // Lizards
+ {id:"komodo",name:"Komodo dragon",wiki:"Komodo dragon",emoji:"🦎",group:"Lizard",clues:["I smell with my long forked tongue.","I live on a few islands in Indonesia.","I am the biggest lizard in the world."]},
+ {id:"chameleon",name:"Veiled chameleon",wiki:"Veiled chameleon",emoji:"🦎",group:"Lizard",clues:["My eyes can look two ways at once.","I shoot out my sticky tongue to catch bugs.","I can change my colours."]},
+ {id:"iguana",name:"Green iguana",wiki:"Green iguana",emoji:"🦎",group:"Lizard",clues:["I love to eat leaves and fruit.","I have spikes down my back and a flap under my chin.","I am a big green lizard that climbs trees."]},
+ {id:"gecko",name:"Leopard gecko",wiki:"Leopard gecko",emoji:"🦎",group:"Lizard",clues:["I store fat in my thick tail.","I can drop my tail to get away.","I am a small lizard with spots like a big cat."]},
+ {id:"frilled",name:"Frilled lizard",wiki:"Frilled lizard",emoji:"🦎",group:"Lizard",clues:["I can run on my two back legs.","I live in Australia.","I open a big frill around my neck to look scary."]},
+ {id:"gila",name:"Gila monster",wiki:"Gila monster",emoji:"🦎",group:"Lizard",clues:["I live in the hot desert.","I move slowly and my bite has venom.","I am a chunky lizard with orange and black bumpy skin."]},
+ {id:"thorny",name:"Thorny devil",wiki:"Thorny devil",emoji:"🦎",group:"Lizard",clues:["I eat thousands of ants.","Water runs along my skin to my mouth.","I am a small desert lizard covered in spikes."]},
+ {id:"beardie",name:"Bearded dragon",wiki:"Central bearded dragon",emoji:"🦎",group:"Lizard",clues:["I like to bask on warm rocks.","I come from Australia, and some people keep me as a pet.","I puff out my spiky chin like a beard."]},
+ {id:"basilisk",name:"Common basilisk",wiki:"Common basilisk",emoji:"🦎",group:"Lizard",clues:["I live near rivers in the rainforest.","I have a crest on my head and back.","I can run across the top of the water."]},
+ {id:"marine",name:"Marine iguana",wiki:"Marine iguana",emoji:"🦎",group:"Lizard",clues:["I live on the Galápagos Islands.","I sneeze out salt.","I am the only lizard that swims in the sea to eat."]},
+ // Others
+ {id:"lion",name:"Lion",wiki:"Lion",emoji:"🦁",group:"Mammal",clues:["I live in a family called a pride.","My roar can be heard far away.","The male has a big mane."]},
+ {id:"cheetah",name:"Cheetah",wiki:"Cheetah",emoji:"🐆",group:"Mammal",clues:["I have black lines like tears on my face.","I have spots and a long tail.","I am the fastest animal on land."]},
+ {id:"orca",name:"Orca",wiki:"Orca",emoji:"🐋",group:"Mammal",clues:["I live and hunt with my family pod.","I have a tall fin on my back.","I am black and white, and people call me a killer whale."]},
+ {id:"fox",name:"Red fox",wiki:"Red fox",emoji:"🦊",group:"Mammal",clues:["I pounce on mice in the snow.","I have a big bushy tail with a white tip.","I look like a small orange dog."]},
+ {id:"anteater",name:"Giant anteater",wiki:"Giant anteater",emoji:"🐜",group:"Mammal",clues:["I have no teeth at all.","My tongue is as long as your arm.","I use my long snout to eat ants and termites."]},
+ {id:"zebra",name:"Zebra",wiki:"Plains zebra",emoji:"🦓",group:"Mammal",clues:["I live in a big herd on the grasslands.","I look a lot like a horse.","I have black and white stripes."]},
+ {id:"elephant",name:"African elephant",wiki:"African bush elephant",emoji:"🐘",group:"Mammal",clues:["I flap my huge ears to cool off.","I have two long tusks.","I use my long trunk like a hand."]},
+ {id:"giraffe",name:"Giraffe",wiki:"Giraffe",emoji:"🦒",group:"Mammal",clues:["My tongue is dark purple.","I eat leaves from the tops of trees.","I have a very, very long neck."]},
+ {id:"seaotter",name:"Sea otter",wiki:"Sea otter",emoji:"🦦",group:"Mammal",clues:["I have the thickest fur of any animal.","I use a rock to crack open shells.","I float on my back in the sea."]},
+ {id:"polarbear",name:"Polar bear",wiki:"Polar bear",emoji:"🐻‍❄️",group:"Mammal",clues:["My skin is black under my fur.","I hunt seals on the sea ice.","I am a big white bear."]},
+ {id:"clownfish",name:"Clownfish",wiki:"Ocellaris clownfish",emoji:"🐠",group:"Fish",clues:["I live in a coral reef.","I hide in a sea anemone that stings other fish.","I am orange with white stripes."]},
+ {id:"monarch",name:"Monarch butterfly",wiki:"Monarch butterfly",emoji:"🦋",group:"Insect",clues:["I start life as a striped caterpillar.","I eat milkweed.","I am orange and black, and I fly all the way to Mexico."]},
+ {id:"axolotl",name:"Axolotl",wiki:"Axolotl",emoji:"🦎",group:"Amphibian",clues:["I can grow back a leg if I lose one.","I have feathery gills on my head.","I am a salamander that stays in the water my whole life."]},
+ {id:"treefrog",name:"Red-eyed tree frog",wiki:"Red-eyed tree frog",emoji:"🐸",group:"Amphibian",clues:["I sleep on leaves in the daytime.","I have sticky orange toes.","I am a green frog with big red eyes."]}
+];
+
+/* Extra animals that only show up in the two "goes together" games */
+const X = [
+ {id:"mouse",name:"Mouse",wiki:"House mouse",emoji:"🐭"},
+ {id:"trout",name:"Trout",wiki:"Rainbow trout",emoji:"🐟"},
+ {id:"cricket",name:"Cricket",wiki:"House cricket",emoji:"🦗"},
+ {id:"pigeon",name:"Pigeon",wiki:"Rock dove",emoji:"🕊️"},
+ {id:"leopardseal",name:"Leopard seal",wiki:"Leopard seal",emoji:"🦭"},
+ {id:"gazelle",name:"Gazelle",wiki:"Thomson's gazelle",emoji:"🦌"},
+ {id:"deer",name:"Deer",wiki:"Javan rusa",emoji:"🦌"},
+ {id:"seal",name:"Harbour seal",wiki:"Harbor seal",emoji:"🦭"},
+ {id:"gartersnake",name:"Garter snake",wiki:"Common garter snake",emoji:"🐍"},
+ {id:"frog",name:"Leopard frog",wiki:"Northern leopard frog",emoji:"🐸"},
+ {id:"termite",name:"Termites",wiki:"Termite",emoji:"🐜"},
+ {id:"rabbit",name:"Rabbit",wiki:"European rabbit",emoji:"🐇"},
+ {id:"lemming",name:"Lemming",wiki:"Lemming",emoji:"🐹"},
+ {id:"anemone",name:"Sea anemone",wiki:"Sea anemone",emoji:"🪸"},
+ {id:"egret",name:"Cattle egret",wiki:"Cattle egret",emoji:"🐦"},
+ {id:"cow",name:"Cow",wiki:"Cattle",emoji:"🐄"},
+ {id:"cleanershrimp",name:"Cleaner shrimp",wiki:"Lysmata amboinensis",emoji:"🦐"},
+ {id:"moray",name:"Moray eel",wiki:"Moray eel",emoji:"🐟"},
+ {id:"remora",name:"Remora",wiki:"Remora",emoji:"🐟"},
+ {id:"shark",name:"Shark",wiki:"Lemon shark",emoji:"🦈"},
+ {id:"ant",name:"Ant",wiki:"Ant",emoji:"🐜"},
+ {id:"aphid",name:"Aphids",wiki:"Aphid",emoji:"🐛"},
+ {id:"goby",name:"Goby",wiki:"Amblyeleotris",emoji:"🐟"},
+ {id:"pistolshrimp",name:"Pistol shrimp",wiki:"Alpheidae",emoji:"🦐"},
+ {id:"oxpecker",name:"Oxpecker",wiki:"Red-billed oxpecker",emoji:"🐦"},
+ {id:"rhino",name:"Rhino",wiki:"White rhinoceros",emoji:"🦏"}
+];
+
+/* [hunter, prey, sentence shown when matched] */
+const HUNT = [
+ ["barnowl","mouse","A barn owl hunts mice at night."],
+ ["lion","zebra","Lions work together to hunt zebras."],
+ ["osprey","trout","An osprey dives to catch fish."],
+ ["chameleon","cricket","A chameleon zaps crickets with its tongue."],
+ ["peregrine","pigeon","A peregrine falcon catches pigeons in the air."],
+ ["leopardseal","penguin","A leopard seal chases penguins in the sea."],
+ ["cheetah","gazelle","A cheetah sprints after gazelles."],
+ ["komodo","deer","A Komodo dragon can take down a deer."],
+ ["orca","seal","Orcas hunt seals."],
+ ["gartersnake","frog","A garter snake swallows frogs whole."],
+ ["anteater","termite","A giant anteater licks up termites."],
+ ["fox","rabbit","A red fox hunts rabbits."],
+ ["snowyowl","lemming","A snowy owl hunts lemmings."]
+];
+
+/* [partner, partner, sentence shown when matched] */
+const PARTNERS = [
+ ["clownfish","anemone","The anemone keeps the clownfish safe. The clownfish keeps it clean."],
+ ["egret","cow","Cows stir up bugs in the grass. The egret eats them."],
+ ["cleanershrimp","moray","The shrimp cleans the eel and gets a meal."],
+ ["remora","shark","The remora rides on the shark and eats its scraps."],
+ ["ant","aphid","Ants guard the aphids. Aphids give the ants sweet honeydew."],
+ ["goby","pistolshrimp","The shrimp digs the burrow. The goby keeps watch."],
+ ["oxpecker","rhino","The oxpecker eats ticks off the rhino."]
+];
+
+/* ============================================================
+   Helpers
+   ============================================================ */
+const BY = {}; [...A, ...X].forEach(a => BY[a.id] = a);
+const app = document.getElementById("app");
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (props || {})) {
+    if (k === "class") e.className = props[k];
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  }
+  kids.flat().forEach(c => { if (c == null || c === false) return; e.append(c.nodeType ? c : document.createTextNode(c)); });
+  return e;
+}
+
+/* ---------- stars ---------- */
+let stars = 0;
+try { stars = parseInt(localStorage.getItem("animal-stars") || "0", 10) || 0; } catch (e) {}
+function addStars(n) { stars += n; try { localStorage.setItem("animal-stars", String(stars)); } catch (e) {} const s = document.querySelector(".stars"); if (s) s.textContent = "⭐ " + stars; }
+
+/* ---------- photos from Wikipedia / Wikimedia Commons ---------- */
+let IMG = {};
+const CACHE_KEY = "animal-photos-v1";
+const API = "https://en.wikipedia.org/w/api.php";
+
+function readCache() {
+  try { const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); if (c && Date.now() - c.t < 14 * 864e5) return c.d; } catch (e) {}
+  return null;
+}
+function dropCache() { try { localStorage.removeItem(CACHE_KEY); } catch (e) {} }
+
+async function loadPhotos() {
+  const all = [...A, ...X];
+  all.forEach(a => { if (a.file) IMG[a.id] = { src: "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(a.file) + "?width=500", file: a.file }; });
+  const cached = readCache();
+  if (cached) { IMG = Object.assign({}, cached, IMG); refreshPhotos(); return; }
+  const found = {};
+  try {
+    const need = all.filter(a => !a.file);
+    for (let i = 0; i < need.length; i += 45) {
+      const chunk = need.slice(i, i + 45);
+      const url = API + "?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail%7Cname&pithumbsize=500&pilimit=50&titles=" + encodeURIComponent(chunk.map(a => a.wiki).join("|"));
+      const q = ((await (await fetch(url)).json()).query) || {};
+      const norm = {}, red = {}, pages = {};
+      (q.normalized || []).forEach(n => norm[n.from] = n.to);
+      (q.redirects || []).forEach(r => red[r.from] = r.to);
+      Object.values(q.pages || {}).forEach(p => pages[p.title] = p);
+      chunk.forEach(a => {
+        let t = a.wiki; t = norm[t] || t; t = red[t] || t;
+        const p = pages[t];
+        if (p && p.thumbnail) found[a.id] = { src: p.thumbnail.source, file: p.pageimage };
+      });
+    }
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: found })); } catch (e) {}
+  } catch (e) { /* offline: the emoji stand-ins stay */ }
+  IMG = Object.assign({}, found, IMG);
+  refreshPhotos();
+}
+
+function fillPhoto(box) {
+  const a = BY[box.dataset.photo];
+  box.textContent = "";
+  const emoji = () => { box.textContent = ""; box.append(h("span", { class: "em", "aria-hidden": "true" }, a.emoji)); };
+  const info = IMG[a.id];
+  if (!info) return emoji();
+  const img = h("img", { src: info.src, alt: box.dataset.alt === "hide" ? "Mystery animal" : a.name, loading: "lazy" });
+  img.addEventListener("error", () => { dropCache(); emoji(); });
+  box.append(img);
+}
+function photo(id, hideName) {
+  const box = h("div", { class: "photo", "data-photo": id, "data-alt": hideName ? "hide" : "show" });
+  fillPhoto(box);
+  return box;
+}
+function refreshPhotos() { document.querySelectorAll("[data-photo]").forEach(fillPhoto); }
+
+/* ---------- screen frame ---------- */
+function screen(title, ...content) {
+  app.textContent = "";
+  app.append(
+    h("div", { class: "top" },
+      h("button", { class: "back", onclick: home }, "‹ Home"),
+      h("h1", null, title),
+      h("div", { class: "stars", "aria-label": "Stars" }, "⭐ " + stars)),
+    ...content);
+  window.scrollTo(0, 0);
+}
+function finished(title, line, again) {
+  screen(title,
+    h("div", { class: "done-box" },
+      h("div", { class: "em", "aria-hidden": "true" }, "🎉"),
+      h("h2", null, line)),
+    h("button", { class: "big", onclick: again }, "Play again"),
+    h("button", { class: "big alt", onclick: home }, "Pick another game"));
+}
+function pickChoices(target) {
+  const others = shuffle(A.filter(a => a.id !== target.id)).slice(0, 3);
+  return shuffle([target, ...others]);
+}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+function tile(emoji, name, desc, go) {
+  return h("button", { class: "tile", onclick: go },
+    h("span", { class: "em", "aria-hidden": "true" }, emoji),
+    h("span", null, h("b", null, name), h("span", null, desc)));
+}
+function home() {
+  app.textContent = "";
+  app.append(
+    h("div", { class: "hero" },
+      h("h1", null, "Gabe’s Animal Games"),
+      h("div", { class: "stars", "aria-label": "Stars" }, "⭐ " + stars)),
+    h("h2", null, "Guess"),
+    h("div", { class: "tiles" },
+      tile("🃏", "Flip cards", "See an animal, flip to learn its name", () => flip(true)),
+      tile("🔎", "Who is this?", "Look at the photo and pick the name", who),
+      tile("💡", "Clues", "Read the clues and guess the animal", clues)),
+    h("h2", null, "Match"),
+    h("div", { class: "tiles" },
+      tile("🐾", "Picture match", "Find the two cards that are the same", memory),
+      tile("🦉", "Hunter and prey", "Who eats whom?", () => connect("hunt")),
+      tile("🤝", "Animal helpers", "Which animals help each other?", () => connect("partners"))),
+    h("button", { class: "linkish", onclick: credits }, "Photo credits"));
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   FLIP CARDS
+   ============================================================ */
+function flip(pictureFirst) {
+  let deck = shuffle(A), i = 0;
+  function show() {
+    const a = deck[i];
+    const pic = () => photo(a.id, false);
+    const words = () => [h("div", { class: "name" }, a.name), h("div", { class: "kind" }, a.group), h("p", null, a.clues[0])];
+    const card = h("button", { class: "flip", "aria-label": "Flip the card", onclick: () => card.classList.toggle("on") },
+      h("div", { class: "face f" }, pictureFirst ? [pic(), h("div", { class: "hint" }, "Tap to flip")] : [h("div", { class: "name" }, a.name), h("div", { class: "hint" }, "Tap to flip")]),
+      h("div", { class: "face b" }, pictureFirst ? words() : [pic(), h("div", { class: "kind" }, a.group), h("p", null, a.clues[0])]));
+    screen("Flip cards",
+      h("div", { class: "flipwrap" }, card),
+      h("button", { class: "big", onclick: () => { i++; if (i >= deck.length) { deck = shuffle(A); i = 0; } show(); } }, "Next animal"),
+      h("button", { class: "big alt", onclick: () => flip(!pictureFirst) }, pictureFirst ? "Switch to name first" : "Switch to picture first"));
+  }
+  show();
+}
+
+/* ============================================================
+   WHO IS THIS?  and  CLUES  (shared quiz engine)
+   ============================================================ */
+function quiz(title, useClues, again) {
+  const round = shuffle(A).slice(0, 8);
+  let i = 0, score = 0;
+  function ask() {
+    const a = round[i];
+    let firstTry = true, shown = 1;
+    const top = h("div");
+    const result = h("div");
+    const paint = () => {
+      top.textContent = "";
+      if (useClues) {
+        a.clues.slice(0, shown).forEach(c => top.append(h("div", { class: "clue" }, c)));
+      } else {
+        top.append(photo(a.id, true));
+        if (!IMG[a.id]) top.append(h("div", { class: "clue" }, a.clues[2]));
+      }
+    };
+    paint();
+    const more = useClues ? h("button", { class: "big alt", onclick: () => { shown++; firstTry = firstTry && true; paint(); if (shown >= 3) more.remove(); } }, "Give me another clue") : null;
+    const choices = h("div", { class: "choices" });
+    pickChoices(a).forEach(c => {
+      const b = h("button", { class: "choice", onclick: () => {
+        if (b.disabled) return;
+        if (c.id === a.id) {
+          b.classList.add("right");
+          choices.querySelectorAll("button").forEach(x => x.disabled = true);
+          if (more) more.remove();
+          if (firstTry) { score++; addStars(1); }
+          result.append(
+            useClues ? photo(a.id, false) : null,
+            h("div", { class: "say" }, firstTry ? "Yes! " + a.name + "." : "That’s it. " + a.name + "."),
+            h("button", { class: "big", onclick: () => { i++; i < round.length ? ask() : finished(title, "You got " + score + " of " + round.length + " on the first try.", again); } }, i + 1 < round.length ? "Next animal" : "See my score"));
+          result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        } else {
+          firstTry = false; b.disabled = true; b.classList.add("wrong");
+        }
+      } }, c.name);
+      choices.append(b);
+    });
+    screen(title,
+      h("div", { class: "count" }, "Animal " + (i + 1) + " of " + round.length),
+      top, more, choices, result);
+  }
+  ask();
+}
+function who() { quiz("Who is this?", false, who); }
+function clues() { quiz("Clues", true, clues); }
+
+/* ============================================================
+   PICTURE MATCH (memory)
+   ============================================================ */
+function memory() {
+  const picks = shuffle(A).slice(0, 6);
+  const cards = shuffle([...picks, ...picks]);
+  let open = [], lock = false, found = 0, turns = 0;
+  const say = h("div", { class: "say" }, "Tap two cards.");
+  const grid = h("div", { class: "grid c3 small" });
+  cards.forEach(a => {
+    const b = h("button", { class: "mcard", "aria-label": "Card" }, "🐾", photo(a.id, false));
+    b.addEventListener("click", () => {
+      if (lock || b.classList.contains("up")) return;
+      b.classList.add("up"); open.push({ b, a });
+      if (open.length < 2) return;
+      turns++;
+      const [p, q] = open; open = [];
+      if (p.a.id === q.a.id) {
+        p.b.classList.add("done"); q.b.classList.add("done"); found++;
+        say.textContent = "A match! " + p.a.name + ".";
+        addStars(1);
+        if (found === picks.length) setTimeout(() => finished("Picture match", "All matched in " + turns + " turns.", memory), 900);
+      } else {
+        lock = true; say.textContent = "Not the same. Try again.";
+        setTimeout(() => { p.b.classList.remove("up"); q.b.classList.remove("up"); lock = false; }, 1100);
+      }
+    });
+    grid.append(b);
+  });
+  screen("Picture match", grid, say);
+}
+
+/* ============================================================
+   HUNTER AND PREY  /  ANIMAL HELPERS  (cards face up)
+   ============================================================ */
+function connect(kind) {
+  const isHunt = kind === "hunt";
+  const title = isHunt ? "Hunter and prey" : "Animal helpers";
+  const pairs = shuffle(isHunt ? HUNT : PARTNERS).slice(0, 4);
+  const partner = {}, line = {};
+  pairs.forEach(([x, y, s]) => { partner[x] = y; partner[y] = x; line[x] = s; line[y] = s; });
+  const ids = shuffle(pairs.flatMap(p => [p[0], p[1]]));
+  let sel = null, found = 0, clean = true;
+  const ask = isHunt ? "Tap a hunter, then the animal it eats." : "Tap two animals that help each other.";
+  const say = h("div", { class: "say" }, ask);
+  const grid = h("div", { class: "grid c2 small" });
+  ids.forEach(id => {
+    const b = h("button", { class: "ccard" }, photo(id, false), BY[id].name);
+    b.addEventListener("click", () => {
+      if (b.classList.contains("done")) return;
+      if (!sel) { sel = { id, b }; b.classList.add("sel"); return; }
+      if (sel.id === id) { b.classList.remove("sel"); sel = null; return; }
+      if (partner[sel.id] === id) {
+        [b, sel.b].forEach(x => { x.classList.remove("sel"); x.classList.add("done"); x.disabled = true; });
+        say.textContent = line[id]; found++; addStars(1);
+        sel = null;
+        if (found === pairs.length) {
+          setTimeout(() => {
+            finished(title, clean ? "Every pair, no mistakes!" : "You found every pair.", () => connect(kind));
+            const box = document.querySelector(".done-box");
+            pairs.forEach(p => box.append(h("p", null, p[2])));
+          }, 1600);
+        }
+      } else {
+        clean = false;
+        const first = sel.b; sel = null;
+        [b, first].forEach(x => { x.classList.remove("sel"); x.classList.remove("no"); void x.offsetWidth; x.classList.add("no"); });
+        say.textContent = "Those two don’t go together. Try again.";
+      }
+    });
+    grid.append(b);
+  });
+  screen(title, say, h("div", { style: "height:10px" }), grid);
+}
+
+/* ============================================================
+   PHOTO CREDITS (pulled live from Wikimedia Commons)
+   ============================================================ */
+async function credits() {
+  const list = h("ul");
+  screen("Photo credits",
+    h("p", null, "Photos come from Wikipedia and Wikimedia Commons. Thank you to the photographers."),
+    h("div", { class: "credits" }, list));
+  const have = [...A, ...X].filter(a => IMG[a.id] && IMG[a.id].file);
+  if (!have.length) { list.append(h("li", null, "No photos are loaded right now. Check the internet connection and open the app again.")); return; }
+  const meta = {};
+  const key = s => s.replace(/_/g, " ");
+  try {
+    for (let i = 0; i < have.length; i += 45) {
+      const chunk = have.slice(i, i + 45);
+      const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=extmetadata&iiextmetadatafilter=Artist%7CLicenseShortName&titles=" + encodeURIComponent(chunk.map(a => "File:" + IMG[a.id].file).join("|"));
+      const q = ((await (await fetch(url)).json()).query) || {};
+      Object.values(q.pages || {}).forEach(p => {
+        const m = (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].extmetadata) || {};
+        const artist = m.Artist ? new DOMParser().parseFromString(m.Artist.value, "text/html").body.textContent.trim() : "";
+        meta[key(p.title.replace(/^File:/, ""))] = { artist, lic: m.LicenseShortName ? m.LicenseShortName.value : "" };
+      });
+    }
+  } catch (e) {}
+  have.forEach(a => {
+    const f = IMG[a.id].file, m = meta[key(f)] || {};
+    list.append(h("li", null,
+      a.name + ": ",
+      (m.artist || "see file page") + (m.lic ? ", " + m.lic : "") + ". ",
+      h("a", { href: "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(f), target: "_blank", rel: "noopener" }, "File page")));
+  });
+}
+
+home();
+loadPhotos();
+</script>
+</body>
+</html>
