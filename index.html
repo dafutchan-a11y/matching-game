@@ -47,27 +47,31 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--water);outline-offs
 .stars{background:var(--sun);color:var(--sun-ink);border-radius:999px;padding:6px 14px;font-weight:700;white-space:nowrap}
 
 .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:6px 0 4px}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--card);border-radius:999px;padding:6px;margin-top:14px}
+.lvl{border-radius:999px;padding:10px 4px;font-weight:700;text-align:center;color:var(--soft)}
+.lvl.on{background:var(--leaf);color:var(--leaf-ink)}
 .tiles{display:grid;gap:10px}
 .tile{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border-radius:22px;padding:14px 16px;border-bottom:5px solid var(--line);width:100%}
 .tile:active{transform:translateY(2px);border-bottom-width:3px}
 .tile .em{font-size:2.2rem;width:54px;height:54px;display:grid;place-items:center;background:var(--bg);border-radius:16px;flex:none}
 .tile b{font-family:var(--display);font-size:1.3rem;display:block;line-height:1.1}
 .tile span{color:var(--soft);font-size:.95rem}
-.linkish{display:block;margin:26px auto 0;color:var(--soft);text-decoration:underline;font-size:.95rem}
+.foot{display:flex;justify-content:center;gap:22px;margin-top:26px}
+.linkish{color:var(--soft);text-decoration:underline;font-size:.95rem}
 
 .photo{width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;background:var(--line);display:grid;place-items:center}
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
 .photo .em{font-size:4.5rem}
-.small .photo .em{font-size:2.4rem}
+.small .photo .em{font-size:2.2rem}
 
 .big{display:block;width:100%;min-height:60px;border-radius:18px;padding:12px 16px;font-weight:700;font-size:1.15rem;background:var(--leaf);color:var(--leaf-ink);border-bottom:5px solid rgba(0,0,0,.25);margin-top:12px}
 .big.alt{background:var(--card);color:var(--ink);border:2px solid var(--line);border-bottom-width:5px}
 .big:active{transform:translateY(2px)}
-.row{display:flex;gap:10px}
-.row .big{flex:1}
 
 .choices{display:grid;gap:10px;margin-top:14px}
+.choices.two{grid-template-columns:1fr 1fr;gap:8px}
 .choice{min-height:60px;border-radius:18px;background:var(--card);border:3px solid var(--line);font-weight:700;font-size:1.15rem;padding:10px 14px;text-align:center}
+.choices.two .choice{font-size:1rem;padding:8px 8px;line-height:1.2}
 .choice.right{background:var(--leaf);border-color:var(--leaf);color:var(--leaf-ink)}
 .choice.wrong{border-color:var(--berry);color:var(--berry);opacity:.6;text-decoration:line-through}
 .count{color:var(--soft);font-size:.95rem;margin-bottom:8px}
@@ -86,13 +90,16 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--water);outline-offs
 
 /* matching */
 .grid{display:grid;gap:8px}
-.grid.c3{grid-template-columns:repeat(3,1fr)}
 .grid.c2{grid-template-columns:repeat(2,1fr)}
+.grid.c3{grid-template-columns:repeat(3,1fr)}
+.grid.c4{grid-template-columns:repeat(4,1fr);gap:6px}
 .mcard{position:relative;aspect-ratio:1;border-radius:16px;overflow:hidden;background:var(--leaf);display:grid;place-items:center;font-size:2rem;border-bottom:4px solid rgba(0,0,0,.25);width:100%}
+.grid.c4 .mcard{font-size:1.5rem;border-radius:12px}
 .mcard .photo{position:absolute;inset:0;border-radius:0;aspect-ratio:auto;height:100%;display:none}
 .mcard.up .photo{display:grid}
 .mcard.done{outline:4px solid var(--sun);outline-offset:-4px}
-.ccard{background:var(--card);border-radius:18px;padding:8px;border:4px solid transparent;text-align:center;font-weight:700;font-size:1rem;width:100%}
+.ccard{background:var(--card);border-radius:18px;padding:8px;border:4px solid transparent;text-align:center;font-weight:700;font-size:1rem;width:100%;line-height:1.15}
+.grid.c3 .ccard{font-size:.85rem;padding:5px;border-radius:14px}
 .ccard .photo{border-radius:12px;margin-bottom:6px}
 .ccard.sel{border-color:var(--water)}
 .ccard.done{border-color:var(--sun);opacity:.55}
@@ -104,6 +111,10 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--water);outline-offs
 .credits li{font-size:.9rem;margin-bottom:8px;color:var(--soft)}
 .credits a{color:var(--water)}
 .credits ul{padding-left:20px}
+.check{font-size:.8rem;text-align:center;line-height:1.15}
+.check .photo{border-radius:10px;margin-bottom:4px}
+.check small{display:block;color:var(--soft)}
+.check.missing .photo{outline:3px solid var(--berry)}
 
 @media (prefers-reduced-motion: reduce){
   .flip{transition:none}
@@ -116,175 +127,355 @@ button:focus-visible,a:focus-visible{outline:4px solid var(--water);outline-offs
 
 <script>
 /* ============================================================
-   ANIMAL DATA
-   To add an animal: copy a line, change the id, name, Wikipedia
-   article title (wiki), emoji, group and three clues (hardest
-   clue first, easiest last).
-   If the photo Wikipedia picks is a poor one, add
-   file:"Exact file name on Commons.jpg" to that line.
+   ANIMAL DATA SET
+   One animal per line, ten parts separated by | :
+
+   id | Name shown | Wikipedia article | emoji | Group | subgroup | tags | clue 1 | clue 2 | clue 3
+
+   - Group is what shows on the flip card (Bird, Lizard, Reptile,
+     Mammal, Fish, Amphibian, Insect, Invertebrate).
+   - subgroup and tags decide which animals are used as tricky
+     wrong answers on Medium and Hard. Animals that share a
+     subgroup or tags (arctic, desert, fisheater, night...) are
+     treated as look-alikes or sound-alikes.
+   - Clues go hardest first, easiest last.
+   - Optional 11th part: an exact Wikimedia Commons file name
+     (for example Blue_jay.jpg) to use instead of the photo
+     Wikipedia picks.
    ============================================================ */
-const A = [
- // Birds
- {id:"bluejay",name:"Blue jay",wiki:"Blue jay",emoji:"🐦",group:"Bird",clues:["I am loud and I love acorns.","I have a pointy crest on my head.","I am a bright blue bird."]},
- {id:"cardinal",name:"Northern cardinal",wiki:"Northern cardinal",emoji:"🐦",group:"Bird",clues:["I whistle from the treetops, even in winter.","I have a crest and a thick orange beak.","The male is bright red all over."]},
- {id:"barnowl",name:"Barn owl",wiki:"Barn owl",emoji:"🦉",group:"Bird",clues:["I hunt at night without a sound.","My face is shaped like a heart.","I am a pale owl that likes old barns."]},
- {id:"osprey",name:"Osprey",wiki:"Osprey",emoji:"🦅",group:"Bird",clues:["I build a big stick nest near water.","I dive feet first to catch fish.","People call me the fish hawk."]},
- {id:"peregrine",name:"Peregrine falcon",wiki:"Peregrine falcon",emoji:"🦅",group:"Bird",clues:["I nest on cliffs and tall buildings.","I catch other birds in the air.","When I dive, I am the fastest animal in the world."]},
- {id:"puffin",name:"Atlantic puffin",wiki:"Atlantic puffin",emoji:"🐧",group:"Bird",clues:["I dig a burrow by the sea for my egg.","I can hold lots of little fish in my beak at once.","I am black and white with a big bright beak."]},
- {id:"penguin",name:"Emperor penguin",wiki:"Emperor penguin",emoji:"🐧",group:"Bird",clues:["The dad keeps the egg warm on his feet.","I live on the ice in Antarctica.","I am a bird that cannot fly, but I swim very well."]},
- {id:"hummingbird",name:"Ruby-throated hummingbird",wiki:"Ruby-throated hummingbird",emoji:"🐦",group:"Bird",clues:["I drink sweet nectar from flowers.","My wings beat so fast they hum.","I am tiny and I can fly backwards."]},
- {id:"heron",name:"Great blue heron",wiki:"Great blue heron",emoji:"🐦",group:"Bird",clues:["I stand very still in shallow water.","I grab fish with my long sharp beak.","I am a tall grey-blue bird with long legs."]},
- {id:"robin",name:"American robin",wiki:"American robin",emoji:"🐦",group:"Bird",clues:["I pull worms out of the grass.","My eggs are bright blue.","I have an orange-red chest."]},
- {id:"loon",name:"Common loon",wiki:"Common loon",emoji:"🦆",group:"Bird",clues:["My call sounds spooky across the lake.","I dive deep to catch fish.","I am on the Canadian one dollar coin."]},
- {id:"baldeagle",name:"Bald eagle",wiki:"Bald eagle",emoji:"🦅",group:"Bird",clues:["I build a huge nest of sticks.","I have a hooked yellow beak.","I am a big dark bird with a white head."]},
- {id:"chickadee",name:"Black-capped chickadee",wiki:"Black-capped chickadee",emoji:"🐦",group:"Bird",clues:["I hide seeds to eat later.","I have a black cap and a black bib.","My call sounds like chick-a-dee-dee-dee."]},
- {id:"snowyowl",name:"Snowy owl",wiki:"Snowy owl",emoji:"🦉",group:"Bird",clues:["I live in the cold Arctic.","I hunt lemmings, even in the daytime.","I am a big white owl with yellow eyes."]},
- // Lizards
- {id:"komodo",name:"Komodo dragon",wiki:"Komodo dragon",emoji:"🦎",group:"Lizard",clues:["I smell with my long forked tongue.","I live on a few islands in Indonesia.","I am the biggest lizard in the world."]},
- {id:"chameleon",name:"Veiled chameleon",wiki:"Veiled chameleon",emoji:"🦎",group:"Lizard",clues:["My eyes can look two ways at once.","I shoot out my sticky tongue to catch bugs.","I can change my colours."]},
- {id:"iguana",name:"Green iguana",wiki:"Green iguana",emoji:"🦎",group:"Lizard",clues:["I love to eat leaves and fruit.","I have spikes down my back and a flap under my chin.","I am a big green lizard that climbs trees."]},
- {id:"gecko",name:"Leopard gecko",wiki:"Leopard gecko",emoji:"🦎",group:"Lizard",clues:["I store fat in my thick tail.","I can drop my tail to get away.","I am a small lizard with spots like a big cat."]},
- {id:"frilled",name:"Frilled lizard",wiki:"Frilled lizard",emoji:"🦎",group:"Lizard",clues:["I can run on my two back legs.","I live in Australia.","I open a big frill around my neck to look scary."]},
- {id:"gila",name:"Gila monster",wiki:"Gila monster",emoji:"🦎",group:"Lizard",clues:["I live in the hot desert.","I move slowly and my bite has venom.","I am a chunky lizard with orange and black bumpy skin."]},
- {id:"thorny",name:"Thorny devil",wiki:"Thorny devil",emoji:"🦎",group:"Lizard",clues:["I eat thousands of ants.","Water runs along my skin to my mouth.","I am a small desert lizard covered in spikes."]},
- {id:"beardie",name:"Bearded dragon",wiki:"Central bearded dragon",emoji:"🦎",group:"Lizard",clues:["I like to bask on warm rocks.","I come from Australia, and some people keep me as a pet.","I puff out my spiky chin like a beard."]},
- {id:"basilisk",name:"Common basilisk",wiki:"Common basilisk",emoji:"🦎",group:"Lizard",clues:["I live near rivers in the rainforest.","I have a crest on my head and back.","I can run across the top of the water."]},
- {id:"marine",name:"Marine iguana",wiki:"Marine iguana",emoji:"🦎",group:"Lizard",clues:["I live on the Galápagos Islands.","I sneeze out salt.","I am the only lizard that swims in the sea to eat."]},
- // Others
- {id:"lion",name:"Lion",wiki:"Lion",emoji:"🦁",group:"Mammal",clues:["I live in a family called a pride.","My roar can be heard far away.","The male has a big mane."]},
- {id:"cheetah",name:"Cheetah",wiki:"Cheetah",emoji:"🐆",group:"Mammal",clues:["I have black lines like tears on my face.","I have spots and a long tail.","I am the fastest animal on land."]},
- {id:"orca",name:"Orca",wiki:"Orca",emoji:"🐋",group:"Mammal",clues:["I live and hunt with my family pod.","I have a tall fin on my back.","I am black and white, and people call me a killer whale."]},
- {id:"fox",name:"Red fox",wiki:"Red fox",emoji:"🦊",group:"Mammal",clues:["I pounce on mice in the snow.","I have a big bushy tail with a white tip.","I look like a small orange dog."]},
- {id:"anteater",name:"Giant anteater",wiki:"Giant anteater",emoji:"🐜",group:"Mammal",clues:["I have no teeth at all.","My tongue is as long as your arm.","I use my long snout to eat ants and termites."]},
- {id:"zebra",name:"Zebra",wiki:"Plains zebra",emoji:"🦓",group:"Mammal",clues:["I live in a big herd on the grasslands.","I look a lot like a horse.","I have black and white stripes."]},
- {id:"elephant",name:"African elephant",wiki:"African bush elephant",emoji:"🐘",group:"Mammal",clues:["I flap my huge ears to cool off.","I have two long tusks.","I use my long trunk like a hand."]},
- {id:"giraffe",name:"Giraffe",wiki:"Giraffe",emoji:"🦒",group:"Mammal",clues:["My tongue is dark purple.","I eat leaves from the tops of trees.","I have a very, very long neck."]},
- {id:"seaotter",name:"Sea otter",wiki:"Sea otter",emoji:"🦦",group:"Mammal",clues:["I have the thickest fur of any animal.","I use a rock to crack open shells.","I float on my back in the sea."]},
- {id:"polarbear",name:"Polar bear",wiki:"Polar bear",emoji:"🐻‍❄️",group:"Mammal",clues:["My skin is black under my fur.","I hunt seals on the sea ice.","I am a big white bear."]},
- {id:"clownfish",name:"Clownfish",wiki:"Ocellaris clownfish",emoji:"🐠",group:"Fish",clues:["I live in a coral reef.","I hide in a sea anemone that stings other fish.","I am orange with white stripes."]},
- {id:"monarch",name:"Monarch butterfly",wiki:"Monarch butterfly",emoji:"🦋",group:"Insect",clues:["I start life as a striped caterpillar.","I eat milkweed.","I am orange and black, and I fly all the way to Mexico."]},
- {id:"axolotl",name:"Axolotl",wiki:"Axolotl",emoji:"🦎",group:"Amphibian",clues:["I can grow back a leg if I lose one.","I have feathery gills on my head.","I am a salamander that stays in the water my whole life."]},
- {id:"treefrog",name:"Red-eyed tree frog",wiki:"Red-eyed tree frog",emoji:"🐸",group:"Amphibian",clues:["I sleep on leaves in the daytime.","I have sticky orange toes.","I am a green frog with big red eyes."]},
- // More birds
- {id:"mallard",name:"Mallard",wiki:"Mallard",emoji:"🦆",group:"Bird",clues:["I tip upside down to eat under the water.","The female says quack.","The male is a duck with a shiny green head."]},
- {id:"canadagoose",name:"Canada goose",wiki:"Canada goose",emoji:"🦆",group:"Bird",clues:["My family flies in a V shape.","I honk loudly.","I have a black neck and a white chin strap."]},
- {id:"redtail",name:"Red-tailed hawk",wiki:"Red-tailed hawk",emoji:"🦅",group:"Bird",clues:["I soar in wide circles high over fields.","My scream is used in lots of movies.","I am a hawk with a rusty red tail."]},
- {id:"greathorned",name:"Great horned owl",wiki:"Great horned owl",emoji:"🦉",group:"Bird",clues:["I hoot hoo-hoo-hoo at night.","I can even hunt skunks.","I am a big owl with feather tufts that look like horns."]},
- {id:"downy",name:"Downy woodpecker",wiki:"Downy woodpecker",emoji:"🐦",group:"Bird",clues:["I drum on trees with my beak.","I am black and white, and the male has a red spot on his head.","I am the smallest woodpecker in Canada."]},
- {id:"goldfinch",name:"American goldfinch",wiki:"American goldfinch",emoji:"🐦",group:"Bird",clues:["I love thistle and sunflower seeds.","I turn dull brown in winter.","In summer the male is bright yellow with black wings."]},
- {id:"redwing",name:"Red-winged blackbird",wiki:"Red-winged blackbird",emoji:"🐦",group:"Bird",clues:["I sing conk-la-ree from the cattails.","I live in marshes.","I am black with red and yellow patches on my shoulders."]},
- {id:"kingfisher",name:"Belted kingfisher",wiki:"Belted kingfisher",emoji:"🐦",group:"Bird",clues:["I dig a tunnel in a riverbank for my nest.","I dive head first for fish.","I am blue-grey with a shaggy crest and a big beak."]},
- {id:"woodduck",name:"Wood duck",wiki:"Wood duck",emoji:"🦆",group:"Bird",clues:["I nest in a hole in a tree.","My ducklings jump from the nest down to the ground.","The male is a duck with many colours and red eyes."]},
- {id:"flamingo",name:"Flamingo",wiki:"American flamingo",emoji:"🦩",group:"Bird",clues:["I eat with my head upside down.","I often stand on one leg.","I am pink with very long legs."]},
- {id:"ostrich",name:"Ostrich",wiki:"Common ostrich",emoji:"🐦",group:"Bird",clues:["I lay the biggest egg in the world.","I cannot fly, but I run very fast.","I am the biggest bird in the world."]},
- {id:"toucan",name:"Toco toucan",wiki:"Toco toucan",emoji:"🐦",group:"Bird",clues:["I live in South America and eat lots of fruit.","I am black with a white throat.","I have a huge orange beak."]},
- {id:"peacock",name:"Peacock",wiki:"Indian peafowl",emoji:"🦚",group:"Bird",clues:["I come from India.","The female is called a peahen.","The male fans out a giant tail covered in eye spots."]},
- {id:"waxwing",name:"Cedar waxwing",wiki:"Cedar waxwing",emoji:"🐦",group:"Bird",clues:["I love to eat berries.","I have a black mask and a crest.","My tail has a yellow tip and my wings have red waxy dots."]},
- {id:"vulture",name:"Turkey vulture",wiki:"Turkey vulture",emoji:"🦅",group:"Bird",clues:["I find food with my amazing sense of smell.","I eat animals that are already dead.","I am a big dark bird with a bald red head."]},
- // More fish
- {id:"greatwhite",name:"Great white shark",wiki:"Great white shark",emoji:"🦈",group:"Fish",clues:["I grow new teeth my whole life.","My teeth are shaped like triangles.","I am a huge shark that is grey on top and white underneath."]},
- {id:"whaleshark",name:"Whale shark",wiki:"Whale shark",emoji:"🦈",group:"Fish",clues:["I eat tiny plankton.","I am covered in white spots.","I am the biggest fish in the world."]},
- {id:"seahorse",name:"Seahorse",wiki:"Seahorse",emoji:"🐟",group:"Fish",clues:["The dad carries the babies in his pouch.","I hold on to sea grass with my curly tail.","My head looks like a horse’s head."]},
- {id:"puffer",name:"Pufferfish",wiki:"Tetraodontidae",emoji:"🐡",group:"Fish",clues:["Some of us are very poisonous to eat.","My teeth look like a beak.","I puff up like a ball when I am scared."]},
- {id:"angler",name:"Anglerfish",wiki:"Humpback anglerfish",emoji:"🐟",group:"Fish",clues:["I live in the deep, dark sea.","I have a huge mouth with long teeth.","I have a glowing light on my head to trick other fish."]},
- {id:"manta",name:"Manta ray",wiki:"Giant oceanic manta ray",emoji:"🐟",group:"Fish",clues:["I sometimes leap right out of the sea.","I strain tiny food out of the water.","I am flat and wide, and I swim like I am flying."]},
- {id:"sockeye",name:"Sockeye salmon",wiki:"Sockeye salmon",emoji:"🐟",group:"Fish",clues:["I am born in a river and grow up in the ocean.","I swim back up the river to lay my eggs.","I turn bright red with a green head."]},
- {id:"bluetang",name:"Blue tang",wiki:"Paracanthurus",emoji:"🐠",group:"Fish",clues:["I live on coral reefs.","I have a sharp spine near my tail.","I am bright blue with a yellow tail."]},
- {id:"lionfish",name:"Lionfish",wiki:"Red lionfish",emoji:"🐠",group:"Fish",clues:["I hunt small fish on coral reefs.","My long spines have venom.","I have red and white stripes and fins like a fan."]},
- {id:"swordfish",name:"Swordfish",wiki:"Swordfish",emoji:"🐟",group:"Fish",clues:["I am one of the fastest fish in the sea.","I slash at smaller fish to catch them.","My nose is long and flat like a sword."]},
- {id:"electriceel",name:"Electric eel",wiki:"Electric eel",emoji:"🐟",group:"Fish",clues:["I live in muddy rivers in South America.","I come up to the top to breathe air.","I can zap other animals with electricity."]},
- {id:"sunfish",name:"Ocean sunfish",wiki:"Ocean sunfish",emoji:"🐟",group:"Fish",clues:["I eat lots of jellyfish.","I lie on my side at the top of the sea to warm up.","I am a giant round fish that looks like a head with fins."]},
- {id:"seadragon",name:"Leafy seadragon",wiki:"Leafy seadragon",emoji:"🐟",group:"Fish",clues:["I live in the sea near Australia.","I am a cousin of the seahorse.","I look just like floating seaweed."]},
- // More lizards
- {id:"tokay",name:"Tokay gecko",wiki:"Tokay gecko",emoji:"🦎",group:"Lizard",clues:["I am named after my loud call: to-kay!","My sticky toes let me walk on walls.","I am a big blue-grey gecko with orange spots."]},
- {id:"jackson",name:"Jackson’s chameleon",wiki:"Jackson's chameleon",emoji:"🦎",group:"Lizard",clues:["I come from the mountains of East Africa.","My eyes move one at a time.","I am a green chameleon with three horns."]},
- {id:"panther",name:"Panther chameleon",wiki:"Panther chameleon",emoji:"🦎",group:"Lizard",clues:["I live only in Madagascar.","My tongue shoots out to catch bugs.","I am a chameleon with very bright colours like red, blue and green."]},
- {id:"bluetongue",name:"Blue-tongued skink",wiki:"Blue-tongued skink",emoji:"🦎",group:"Lizard",clues:["I live in Australia.","I have short legs and a fat body.","I stick out my bright blue tongue to scare enemies."]},
- {id:"fivelined",name:"Five-lined skink",wiki:"Plestiodon fasciatus",emoji:"🦎",group:"Lizard",clues:["I am the only lizard that lives wild in Ontario.","When I am young, my tail is bright blue.","I have five light stripes down my back."]},
- {id:"anole",name:"Green anole",wiki:"Carolina anole",emoji:"🦎",group:"Lizard",clues:["I do push-ups to show off.","I can change from green to brown.","The male puffs out a pink flap under his chin."]},
- {id:"hornedlizard",name:"Texas horned lizard",wiki:"Texas horned lizard",emoji:"🦎",group:"Lizard",clues:["I eat lots of ants.","I can squirt blood from my eyes to scare enemies.","I am flat and round with horns on my head."]},
- {id:"draco",name:"Flying dragon",wiki:"Draco volans",emoji:"🦎",group:"Lizard",clues:["I live in the trees in Asia.","I eat ants and termites.","I glide from tree to tree on flaps of skin like wings."]},
- {id:"armadillolizard",name:"Armadillo lizard",wiki:"Armadillo girdled lizard",emoji:"🦎",group:"Lizard",clues:["I live in rocky deserts in South Africa.","I am covered in hard, spiky scales.","I bite my tail and roll into a ball to stay safe."]},
- {id:"crested",name:"Crested gecko",wiki:"Crested gecko",emoji:"🦎",group:"Lizard",clues:["People once thought my kind was gone forever.","I lick my own eyes to clean them.","I am a gecko with spiky bits like eyelashes over my eyes."]},
- // More amphibians
- {id:"bullfrog",name:"American bullfrog",wiki:"American bullfrog",emoji:"🐸",group:"Amphibian",clues:["My tadpoles can take two years to grow up.","My call sounds like jug-o-rum.","I am the biggest frog in Canada."]},
- {id:"poisonfrog",name:"Golden poison frog",wiki:"Golden poison frog",emoji:"🐸",group:"Amphibian",clues:["I live in the rainforest in Colombia.","My bright colour warns animals not to eat me.","I am a tiny yellow frog with very strong poison."]},
- {id:"spottedsal",name:"Spotted salamander",wiki:"Spotted salamander",emoji:"🦎",group:"Amphibian",clues:["I hide under logs most of the year.","On rainy spring nights I walk to a pond to lay eggs.","I am a black salamander with two rows of yellow spots."]},
- {id:"newt",name:"Eastern newt",wiki:"Eastern newt",emoji:"🦎",group:"Amphibian",clues:["I live in water, then on land, then in water again.","My skin tastes bad to animals that try to eat me.","When I am young and live on land, I am bright orange and called a red eft."]},
- {id:"firesal",name:"Fire salamander",wiki:"Fire salamander",emoji:"🦎",group:"Amphibian",clues:["I live in forests in Europe.","My skin makes poison.","I am a shiny black salamander with big yellow patches."]},
- {id:"toad",name:"American toad",wiki:"American toad",emoji:"🐸",group:"Amphibian",clues:["I catch bugs with my sticky tongue.","My call is a long, high trill.","I have dry, bumpy brown skin."]},
- {id:"peeper",name:"Spring peeper",wiki:"Spring peeper",emoji:"🐸",group:"Amphibian",clues:["I am one of the first frogs to sing in spring.","I am only as long as a paperclip.","I am a tiny frog with an X on my back, and I say peep."]},
- {id:"woodfrog",name:"Wood frog",wiki:"Wood frog",emoji:"🐸",group:"Amphibian",clues:["I live farther north than any other frog in North America.","I can freeze solid in winter and wake up in spring.","I am a brown frog with a dark mask across my eyes."]},
- {id:"hellbender",name:"Hellbender",wiki:"Hellbender",emoji:"🦎",group:"Amphibian",clues:["I breathe through my wrinkly skin.","I hide under big rocks in clean rivers.","I am the biggest salamander in North America."]},
- {id:"glassfrog",name:"Glass frog",wiki:"Glass frog",emoji:"🐸",group:"Amphibian",clues:["I live in the rainforest.","I sleep under leaves in the daytime.","My belly is see-through, so you can see my insides."]},
- {id:"mudpuppy",name:"Mudpuppy",wiki:"Common mudpuppy",emoji:"🦎",group:"Amphibian",clues:["I stay awake under the ice all winter.","I live at the bottom of lakes and rivers my whole life.","I am a salamander with bushy red gills."]}
-];
+const ANIMAL_DATA = `
+bluejay|Blue jay|Blue jay|🐦|Bird|songbird|backyard,forest,loud,blue,crest|I am loud and I love acorns.|I have a pointy crest on my head.|I am a bright blue bird.
+cardinal|Northern cardinal|Northern cardinal|🐦|Bird|songbird|backyard,red,crest,snow|I whistle from the treetops, even in winter.|I have a crest and a thick orange beak.|The male is bright red all over.
+barnowl|Barn owl|Barn owl|🦉|Bird|owl|night,hunter,white|I hunt at night without a sound.|My face is shaped like a heart.|I am a pale owl that likes old barns.
+osprey|Osprey|Osprey|🦅|Bird|raptor|fisheater,nest,hunter,river,lake|I build a big stick nest near water.|I dive feet first to catch fish.|People call me the fish hawk.
+peregrine|Peregrine falcon|Peregrine falcon|🦅|Bird|raptor|fast,hunter,nest|I nest on cliffs and tall buildings.|I catch other birds in the air.|When I dive, I am the fastest animal in the world.
+puffin|Atlantic puffin|Atlantic puffin|🐧|Bird|seabird|ocean,fisheater,burrow,blackwhite,bigbeak|I dig a burrow by the sea for my egg.|I can hold lots of little fish in my beak at once.|I am black and white with a big bright beak.
+penguin|Emperor penguin|Emperor penguin|🐧|Bird|penguin|antarctic,ice,flightless,swimmer,blackwhite,eggs|The dad keeps the egg warm on his feet.|I live on the ice in Antarctica.|I am the biggest penguin in the world.
+hummingbird|Ruby-throated hummingbird|Ruby-throated hummingbird|🐦|Bird|hummingbird|backyard,tiny,fast|I drink sweet nectar from flowers.|My wings beat so fast they hum.|I am tiny and I can fly backwards.
+heron|Great blue heron|Great blue heron|🐦|Bird|wader|marsh,lake,fisheater,blue|I stand very still in shallow water.|I grab fish with my long sharp beak.|I am a tall grey-blue bird with long legs.
+robin|American robin|American robin|🐦|Bird|songbird|backyard,orange,eggs|I pull worms out of the grass.|My eggs are bright blue.|I have an orange-red chest.
+loon|Common loon|Common loon|🦆|Bird|waterbird|lake,canada,fisheater,loud,swimmer,blackwhite|My call sounds spooky across the lake.|I dive deep to catch fish.|I am on the Canadian one dollar coin.
+baldeagle|Bald eagle|Bald eagle|🦅|Bird|raptor|nest,hunter,fisheater,huge,white|I build a huge nest of sticks.|I have a hooked yellow beak.|I am a big dark bird with a white head.
+chickadee|Black-capped chickadee|Black-capped chickadee|🐦|Bird|songbird|backyard,forest,tiny,snow|I hide seeds to eat later.|I have a black cap and a black bib.|My call sounds like chick-a-dee-dee-dee.
+snowyowl|Snowy owl|Snowy owl|🦉|Bird|owl|arctic,hunter,white,snow|I live in the cold Arctic.|I hunt lemmings, even in the daytime.|I am a big white owl with yellow eyes.
+mallard|Mallard|Mallard|🦆|Bird|waterfowl|marsh,lake,swimmer,green,backyard|I tip upside down to eat under the water.|The female says quack.|The male is a duck with a shiny green head.
+canadagoose|Canada goose|Canada goose|🦆|Bird|waterfowl|lake,loud,migrate,canada,backyard|My family flies in a V shape.|I honk loudly.|I have a black neck and a white chin strap.
+redtail|Red-tailed hawk|Red-tailed hawk|🦅|Bird|raptor|hunter,grassland,loud,red|I soar in wide circles high over fields.|My scream is used in lots of movies.|I am a hawk with a rusty red tail.
+greathorned|Great horned owl|Great horned owl|🦉|Bird|owl|night,hunter,forest,horns|I hoot hoo-hoo-hoo at night.|I can even hunt skunks.|I am a big owl with feather tufts that look like horns.
+downy|Downy woodpecker|Downy woodpecker|🐦|Bird|woodpecker|backyard,forest,blackwhite,tiny,trees|I drum on trees with my beak.|I am black and white, and the male has a red spot on his head.|I am the smallest woodpecker in Canada.
+goldfinch|American goldfinch|American goldfinch|🐦|Bird|songbird|backyard,yellow|I love thistle and sunflower seeds.|I turn dull brown in winter.|In summer the male is bright yellow with black wings.
+redwing|Red-winged blackbird|Red-winged blackbird|🐦|Bird|songbird|marsh,loud,red|I sing conk-la-ree from the cattails.|I live in marshes.|I am black with red and yellow patches on my shoulders.
+kingfisher|Belted kingfisher|Belted kingfisher|🐦|Bird|waterbird|river,fisheater,burrow,crest,bigbeak,blue|I dig a tunnel in a riverbank for my nest.|I dive head first for fish.|I am blue-grey with a shaggy crest and a big beak.
+woodduck|Wood duck|Wood duck|🦆|Bird|waterfowl|lake,forest,nest,trees|I nest in a hole in a tree.|My ducklings jump from the nest down to the ground.|The male is a duck with many colours and red eyes.
+flamingo|Flamingo|American flamingo|🦩|Bird|wader|pink,marsh|I eat with my head upside down.|I often stand on one leg.|I am pink with very long legs.
+ostrich|Ostrich|Common ostrich|🐦|Bird|flightless|africa,grassland,flightless,fast,huge,eggs|I lay the biggest egg in the world.|I cannot fly, but I run very fast.|I am the biggest bird in the world.
+toucan|Toco toucan|Toco toucan|🐦|Bird|tropical|rainforest,southamerica,bigbeak|I live in South America and eat lots of fruit.|I am black with a white throat.|I have a huge orange beak.
+peacock|Peacock|Indian peafowl|🦚|Bird|gamebird|asia,crest,blue,tail|I come from India.|The female is called a peahen.|The male fans out a giant tail covered in eye spots.
+waxwing|Cedar waxwing|Cedar waxwing|🐦|Bird|songbird|backyard,crest,yellow|I love to eat berries.|I have a black mask and a crest.|My tail has a yellow tip and my wings have red waxy dots.
+vulture|Turkey vulture|Turkey vulture|🦅|Bird|raptor|huge,red,scavenger|I find food with my amazing sense of smell.|I eat animals that are already dead.|I am a big dark bird with a bald red head.
+burrowingowl|Burrowing owl|Burrowing owl|🦉|Bird|owl|burrow,grassland,desert,tiny,hunter|I am awake in the daytime, not just at night.|I have long legs for an owl.|I am a small owl that lives in a hole in the ground.
+raven|Common raven|Common raven|🐦|Bird|songbird|smart,loud,canada,forest|I am one of the smartest birds.|My call is a deep croak.|I am a very big, all-black bird.
+arctictern|Arctic tern|Arctic tern|🐦|Bird|seabird|arctic,antarctic,migrate,ocean,fisheater|I see two summers every year.|I fly from the Arctic to Antarctica and back.|I am a white seabird with a black cap and a red beak.
+kingpenguin|King penguin|King penguin|🐧|Bird|penguin|antarctic,flightless,swimmer,orange,ice|I live on cold islands near Antarctica.|My chick is covered in fluffy brown feathers.|I am a big penguin with bright orange patches on my head and neck.
+albatross|Wandering albatross|Wandering albatross|🐦|Bird|seabird|ocean,huge,glider|I can glide for hours without flapping.|I spend most of my life over the ocean.|I have the longest wings of any bird.
+kiwi|Kiwi|North Island brown kiwi|🐦|Bird|flightless|newzealand,night,flightless,bigbeak|I come out at night.|I live in New Zealand and cannot fly.|I am a round brown bird with a long beak and no tail.
+cassowary|Southern cassowary|Southern cassowary|🐦|Bird|flightless|australia,rainforest,flightless,huge,blue|I live in the rainforest in Australia.|I have a hard helmet on my head.|I am a huge bird that cannot fly, with a blue neck.
+macaw|Scarlet macaw|Scarlet macaw|🦜|Bird|tropical|rainforest,southamerica,red,bigbeak,loud|I live in the rainforest.|I can crack hard nuts with my beak.|I am a big red parrot with yellow and blue wings.
+shoebill|Shoebill|Shoebill|🐦|Bird|wader|africa,marsh,fisheater,bigbeak,huge|I stand still for a long time in African swamps.|I catch big fish.|My beak is huge and shaped like a shoe.
+turkey|Wild turkey|Wild turkey|🦃|Bird|gamebird|forest,canada,tail,loud,red|I sleep in trees at night.|The male says gobble-gobble.|The male fans out his tail and has a bare red and blue head.
+roadrunner|Greater roadrunner|Greater roadrunner|🐦|Bird|runner|desert,fast,hunter,snakeeater|I live in the desert.|I can catch lizards and even rattlesnakes.|I would rather run fast than fly.
+pileated|Pileated woodpecker|Pileated woodpecker|🐦|Bird|woodpecker|forest,trees,crest,red,anteater,canada|I chop big rectangle holes in dead trees.|I eat carpenter ants.|I am a big black woodpecker with a red crest.
+secretary|Secretary bird|Secretarybird|🦅|Bird|raptor|africa,grassland,snakeeater,hunter|I live on the grasslands of Africa.|I stomp on snakes with my long legs.|I look like an eagle on very long legs.
+komodo|Komodo dragon|Komodo dragon|🦎|Lizard|monitor|asia,huge,hunter,tongue|I smell with my long forked tongue.|I live on a few islands in Indonesia.|I am the biggest lizard in the world.
+chameleon|Veiled chameleon|Veiled chameleon|🦎|Lizard|chameleon|colourchange,bugeater,tongue,trees|My eyes can look two ways at once.|I shoot out my sticky tongue to catch bugs.|I am a chameleon with a tall helmet on my head.
+iguana|Green iguana|Green iguana|🦎|Lizard|iguana|rainforest,planteater,spikes,green,trees|I love to eat leaves and fruit.|I have spikes down my back and a flap under my chin.|I am a big green lizard that climbs trees.
+gecko|Leopard gecko|Leopard gecko|🦎|Lizard|gecko|desert,spots,tail,pet|I store fat in my thick tail.|I can drop my tail to get away.|I am a small lizard with spots like a big cat.
+frilled|Frilled lizard|Frilled lizard|🦎|Lizard|dragon|australia,fast,trees|I can run on my two back legs.|I live in Australia.|I open a big frill around my neck to look scary.
+gila|Gila monster|Gila monster|🦎|Lizard|beaded|desert,venom,orange,slow|I live in the hot desert.|I move slowly and my bite has venom.|I am a chunky lizard with orange and black bumpy skin.
+thorny|Thorny devil|Thorny devil|🦎|Lizard|dragon|australia,desert,spikes,anteater|I eat thousands of ants.|Water runs along my skin to my mouth.|I am a small desert lizard covered in spikes.
+beardie|Bearded dragon|Central bearded dragon|🦎|Lizard|dragon|australia,desert,spikes,pet|I like to bask on warm rocks.|I come from Australia, and some people keep me as a pet.|I puff out my spiky chin like a beard.
+basilisk|Common basilisk|Common basilisk|🦎|Lizard|iguana|rainforest,river,fast,crest|I live near rivers in the rainforest.|I am brown with a crest on my head and back.|I can run across the top of the water.
+marine|Marine iguana|Marine iguana|🦎|Lizard|iguana|galapagos,ocean,swimmer,planteater|I live on the Galápagos Islands.|I sneeze out salt.|I am the only lizard that swims in the sea to eat.
+tokay|Tokay gecko|Tokay gecko|🦎|Lizard|gecko|asia,loud,blue,orange,night|I am named after my loud call: to-kay!|My sticky toes let me walk on walls.|I am a big blue-grey gecko with orange spots.
+jackson|Jackson’s chameleon|Jackson's chameleon|🦎|Lizard|chameleon|africa,horns,green,mountain,trees|I come from the mountains of East Africa.|My eyes move one at a time.|I am a green chameleon with three horns.
+panther|Panther chameleon|Panther chameleon|🦎|Lizard|chameleon|madagascar,colourchange,bugeater,tongue,trees|I live only in Madagascar.|My tongue shoots out to catch bugs.|I am a chameleon with very bright colours like red, blue and green.
+bluetongue|Blue-tongued skink|Blue-tongued skink|🦎|Lizard|skink|australia,blue,tongue|I live in Australia.|I have short legs and a fat body.|I stick out my bright blue tongue to scare enemies.
+fivelined|Five-lined skink|Plestiodon fasciatus|🦎|Lizard|skink|backyard,canada,stripes,blue,tail|I am the only lizard that lives wild in Ontario.|When I am young, my tail is bright blue.|I have five light stripes down my back.
+anole|Green anole|Carolina anole|🦎|Lizard|iguana|colourchange,green,pink,trees|I do push-ups to show off.|I can change from green to brown.|The male puffs out a pink flap under his chin.
+hornedlizard|Texas horned lizard|Texas horned lizard|🦎|Lizard|iguana|desert,anteater,horns,spikes|I eat lots of ants.|I can squirt blood from my eyes to scare enemies.|I am flat and round with horns on my head.
+draco|Flying dragon|Draco volans|🦎|Lizard|dragon|asia,trees,glider,anteater,rainforest|I live in the trees in Asia.|I eat ants and termites.|I glide from tree to tree on flaps of skin like wings.
+armadillolizard|Armadillo lizard|Armadillo girdled lizard|🦎|Lizard|girdled|africa,desert,spikes|I live in rocky deserts in South Africa.|I am covered in hard, spiky scales.|I bite my tail and roll into a ball to stay safe.
+crested|Crested gecko|Crested gecko|🦎|Lizard|gecko|trees,pet,night,crest|People once thought my kind was gone forever.|I lick my own eyes to clean them.|I am a gecko with spiky bits like eyelashes over my eyes.
+nilemonitor|Nile monitor|Nile monitor|🦎|Lizard|monitor|africa,river,swimmer,hunter,huge|I live near rivers in Africa.|I am a strong swimmer.|I am a big lizard that digs up and eats crocodile eggs.
+chuckwalla|Chuckwalla|Common chuckwalla|🦎|Lizard|iguana|desert,planteater|I live in rocky deserts.|I eat flowers and leaves.|I squeeze into a crack and puff up so nothing can pull me out.
+leaftail|Leaf-tailed gecko|Uroplatus phantasticus|🦎|Lizard|gecko|madagascar,night,trees,rainforest|I live only in Madagascar.|I hide in the daytime and hunt at night.|My body and tail look just like a dead leaf.
+plumed|Plumed basilisk|Plumed basilisk|🦎|Lizard|iguana|rainforest,river,fast,crest,green|I live in the rainforest in Central America.|I can run across the top of the water.|I am bright green with big crests on my head, back and tail.
+landiguana|Galápagos land iguana|Conolophus subcristatus|🦎|Lizard|iguana|galapagos,planteater,yellow|I live on the Galápagos Islands.|I eat prickly pear cactus.|I am a big yellow lizard that stays on land.
+slowworm|Slow worm|Anguis fragilis|🦎|Lizard|legless|europe,backyard,bugeater|I live in gardens in Europe.|I eat slugs and worms.|I look like a snake, but I am a lizard with no legs.
+daygecko|Gold dust day gecko|Gold dust day gecko|🦎|Lizard|gecko|madagascar,green,red,trees|I come from Madagascar.|I am awake in the daytime and lick sweet nectar.|I am a bright green gecko with red marks and gold specks.
+greenturtle|Green sea turtle|Green sea turtle|🐢|Reptile|turtle|ocean,planteater,swimmer,shell,eggs|I come back to the beach where I hatched to lay my eggs.|I eat sea grass.|I am a big turtle with flippers that lives in the ocean.
+leatherback|Leatherback sea turtle|Leatherback sea turtle|🐢|Reptile|turtle|ocean,jellyeater,swimmer,huge,shell|I eat jellyfish.|My shell feels like rubber, not hard.|I am the biggest turtle in the world.
+tortoise|Galápagos tortoise|Galápagos tortoise|🐢|Reptile|turtle|galapagos,old,huge,planteater,shell,slow|I can live for more than 100 years.|I live on the Galápagos Islands.|I am the biggest tortoise in the world.
+paintedturtle|Painted turtle|Painted turtle|🐢|Reptile|turtle|lake,canada,backyard,stripes,red,shell|I sleep at the bottom of the pond all winter.|I like to sit on a log in the sun.|I am a pond turtle with red and yellow stripes.
+snapper|Snapping turtle|Common snapping turtle|🐢|Reptile|turtle|lake,canada,tail,shell,huge|I have a long tail with bumps like a dinosaur.|I cannot hide inside my small shell.|I am a big pond turtle with a strong, snapping bite.
+kingcobra|King cobra|King cobra|🐍|Reptile|snake|asia,venom,snakeeater,huge|I am the longest venomous snake in the world.|I mostly eat other snakes.|I lift up and spread a hood on my neck.
+anaconda|Green anaconda|Green anaconda|🐍|Reptile|snake|southamerica,river,swimmer,huge,rainforest|I live in rivers and swamps in South America.|I squeeze my food.|I am the heaviest snake in the world.
+python|Reticulated python|Reticulated python|🐍|Reptile|snake|asia,huge,rainforest|I live in Asia.|I squeeze my food and swallow it whole.|I am the longest snake in the world.
+rattlesnake|Rattlesnake|Western diamondback rattlesnake|🐍|Reptile|snake|desert,venom,tail,loud|I live in the desert.|I have venom, and I can feel the heat of other animals.|I shake the rattle on my tail as a warning.
+treeboa|Emerald tree boa|Emerald tree boa|🐍|Reptile|snake|rainforest,southamerica,green,trees|I live in the rainforest in South America.|I wrap around a branch in a neat coil.|I am a bright green snake with white marks.
+crocodile|Nile crocodile|Nile crocodile|🐊|Reptile|croc|africa,river,hunter,huge,swimmer|I carry my babies gently in my mouth.|I wait in African rivers for animals that come to drink.|I am a huge reptile with a long tail and a mouth full of teeth.
+alligator|American alligator|American alligator|🐊|Reptile|croc|marsh,hunter,huge,swimmer|I dig holes that hold water for other animals.|I live in swamps in the southern United States.|I have a wide, round snout shaped like a U.
+gharial|Gharial|Gharial|🐊|Reptile|croc|asia,river,fisheater,swimmer|I live in rivers in India.|I eat mostly fish.|I am like a crocodile with a very long, skinny snout.
+tuatara|Tuatara|Tuatara|🦎|Reptile|tuatara|newzealand,old,spikes|I live only in New Zealand.|My family is as old as the dinosaurs.|I look like a lizard, but I am not one.
+lion|Lion|Lion|🦁|Mammal|cat|africa,grassland,hunter,loud,family|I live in a family called a pride.|My roar can be heard far away.|The male has a big mane.
+cheetah|Cheetah|Cheetah|🐆|Mammal|cat|africa,grassland,fast,spots,hunter|I have black lines like tears on my face.|I have spots and a long tail.|I am the fastest animal on land.
+orca|Orca|Orca|🐋|Mammal|whale|ocean,hunter,blackwhite,swimmer,family|I live and hunt with my family pod.|I have a tall fin on my back.|I am black and white, and people call me a killer whale.
+fox|Red fox|Red fox|🦊|Mammal|dog|forest,backyard,hunter,orange,snow,tail|I pounce on mice in the snow.|I have a big bushy tail with a white tip.|I look like a small orange dog.
+anteater|Giant anteater|Giant anteater|🐜|Mammal|anteater|southamerica,anteater,tongue,grassland|I have no teeth at all.|My tongue is as long as your arm.|I use my long snout to eat ants and termites.
+zebra|Zebra|Plains zebra|🦓|Mammal|hoofed|africa,grassland,stripes,blackwhite,planteater,family|I live in a big herd on the grasslands.|I look a lot like a horse.|I have black and white stripes.
+elephant|African elephant|African bush elephant|🐘|Mammal|giant|africa,grassland,huge,planteater,family|I flap my huge ears to cool off.|I have two long tusks.|I use my long trunk like a hand.
+giraffe|Giraffe|Giraffe|🦒|Mammal|hoofed|africa,grassland,planteater,huge,tongue,spots|My tongue is dark purple.|I eat leaves from the tops of trees.|I have a very, very long neck.
+seaotter|Sea otter|Sea otter|🦦|Mammal|seamammal|ocean,swimmer,smart|I have the thickest fur of any animal.|I use a rock to crack open shells.|I float on my back in the sea.
+polarbear|Polar bear|Polar bear|🐻‍❄️|Mammal|bear|arctic,ice,hunter,white,swimmer,huge|My skin is black under my fur.|I hunt seals on the sea ice.|I am a big white bear.
+arcticfox|Arctic fox|Arctic fox|🦊|Mammal|dog|arctic,white,snow,hunter,ice|I follow polar bears to eat their leftovers.|My fur is white in winter and brown in summer.|I am a small fox that lives in the Arctic.
+walrus|Walrus|Walrus|🦭|Mammal|seamammal|arctic,ice,ocean,huge,swimmer|I find clams with my whiskers.|I live on the ice in the Arctic.|I have two long tusks and a big moustache.
+narwhal|Narwhal|Narwhal|🐋|Mammal|whale|arctic,ocean,swimmer,ice,horns|I live in the cold Arctic sea.|People call me the unicorn of the sea.|I am a whale with one long tusk.
+beluga|Beluga|Beluga whale|🐋|Mammal|whale|arctic,ocean,white,loud,swimmer,ice|People call me the canary of the sea because I chirp and whistle.|I live in the Arctic.|I am a small white whale.
+bluewhale|Blue whale|Blue whale|🐋|Mammal|whale|ocean,huge,blue,swimmer|I eat tiny krill.|I can be as long as a basketball court.|I am the biggest animal that has ever lived.
+wolf|Grey wolf|Wolf|🐺|Mammal|dog|forest,hunter,loud,family,canada,snow|I live and hunt in a pack.|I howl to talk to my family.|I look like a big wild dog.
+grizzly|Grizzly bear|Grizzly bear|🐻|Mammal|bear|forest,fisheater,huge,canada,mountain|I sleep in a den all winter.|I catch salmon in the river.|I am a big brown bear with a hump on my shoulders.
+panda|Giant panda|Giant panda|🐼|Mammal|bear|asia,forest,blackwhite,planteater,mountain|I live in the mountains of China.|I eat bamboo almost all day.|I am a black and white bear.
+moose|Moose|Moose|🫎|Mammal|hoofed|forest,lake,huge,canada,horns,planteater|I wade into ponds to eat water plants.|I am the biggest deer in the world.|The male has huge, flat antlers.
+beaver|Beaver|North American beaver|🦫|Mammal|rodent|lake,river,forest,builder,canada,tail,swimmer|My front teeth never stop growing.|I slap my flat tail on the water to warn my family.|I cut down trees and build dams.
+porcupine|Porcupine|North American porcupine|🦔|Mammal|rodent|forest,spikes,trees,canada,slow|I climb trees to eat bark and buds.|I am a big rodent that moves slowly.|I am covered in thousands of sharp quills.
+raccoon|Raccoon|Raccoon|🦝|Mammal|small|backyard,night,smart,tail,stripes|I am very good with my front paws.|I come out at night.|I have a black mask and a ringed tail.
+skunk|Striped skunk|Striped skunk|🦨|Mammal|small|backyard,night,blackwhite,stripes|I stamp my feet before I spray.|I come out at night.|I am black with white stripes and a very bad smell.
+bat|Little brown bat|Little brown bat|🦇|Mammal|small|night,bugeater,tiny,canada|I sleep upside down.|I find bugs in the dark using sound.|I am the only kind of mammal that can truly fly.
+platypus|Platypus|Platypus|🦆|Mammal|oddball|australia,river,venom,eggs,swimmer,bigbeak|I am a mammal that lays eggs.|I live in rivers in Australia.|I have a bill like a duck and a tail like a beaver.
+kangaroo|Red kangaroo|Red kangaroo|🦘|Mammal|pouch|australia,desert,fast,pouch,grassland|I live in Australia.|My baby is called a joey and rides in my pouch.|I hop on my big back legs.
+koala|Koala|Koala|🐨|Mammal|pouch|australia,trees,planteater,pouch,slow|I sleep most of the day.|I live in Australia and carry my baby in a pouch.|I am grey and fluffy, and I eat only eucalyptus leaves.
+sloth|Three-toed sloth|Brown-throated sloth|🦥|Mammal|oddball|rainforest,southamerica,trees,slow,planteater|Green algae grows in my fur.|I hang upside down in rainforest trees.|I am one of the slowest animals in the world.
+tiger|Tiger|Tiger|🐅|Mammal|cat|asia,forest,stripes,hunter,huge,orange,swimmer|I like to swim.|I hunt alone in the forests of Asia.|I am the biggest cat, with orange fur and black stripes.
+snowleopard|Snow leopard|Snow leopard|🐆|Mammal|cat|asia,mountain,spots,snow,hunter,tail|I live high in snowy mountains in Asia.|I wrap my long, thick tail around me to keep warm.|I am a pale grey cat with dark spots.
+hippo|Hippopotamus|Hippopotamus|🦛|Mammal|giant|africa,river,huge,swimmer,planteater|I spend the day in the water to stay cool.|I live in rivers in Africa.|I have a huge mouth that opens very wide.
+gorilla|Gorilla|Mountain gorilla|🦍|Mammal|primate|africa,forest,family,huge,planteater,mountain|I live in a family group in the forests of Africa.|The dad is called a silverback.|I am the biggest ape.
+orangutan|Orangutan|Bornean orangutan|🦧|Mammal|primate|asia,rainforest,trees,orange,nest,smart|I live in the rainforest in Asia.|I build a new nest in the trees every night.|I am a big ape with long orange hair.
+lemur|Ring-tailed lemur|Ring-tailed lemur|🐒|Mammal|primate|madagascar,tail,stripes,blackwhite,family|I live only in Madagascar.|I like to sunbathe sitting up.|I have a long tail with black and white rings.
+dolphin|Bottlenose dolphin|Common bottlenose dolphin|🐬|Mammal|whale|ocean,swimmer,smart,fisheater,family|I find fish using clicks of sound.|I breathe through a blowhole on top of my head.|I am grey, and my mouth looks like it is smiling.
+meerkat|Meerkat|Meerkat|🐿️|Mammal|small|africa,desert,burrow,family|I live in a big family in the desert in Africa.|I dig burrows.|I stand up tall on my back legs to watch for danger.
+redpanda|Red panda|Red panda|🦊|Mammal|small|asia,forest,trees,red,mountain,tail,stripes|I live in mountain forests in Asia.|I eat bamboo.|I have red fur and a long, bushy striped tail.
+chipmunk|Eastern chipmunk|Eastern chipmunk|🐿️|Mammal|rodent|backyard,forest,stripes,burrow,tiny,canada|I sleep underground in winter.|I stuff seeds in my cheeks.|I am small with stripes down my back.
+caribou|Caribou|Reindeer|🦌|Mammal|hoofed|arctic,migrate,horns,canada,snow,planteater|I walk a very long way across the Arctic every year.|Both males and females grow antlers.|I am on the Canadian 25 cent coin.
+lynx|Canada lynx|Canada lynx|🐈|Mammal|cat|forest,snow,canada,hunter|I hunt snowshoe hares.|My big furry paws work like snowshoes.|I am a wild cat with black tufts on my ears and a short tail.
+clownfish|Clownfish|Ocellaris clownfish|🐠|Fish|reef|reef,orange,stripes|I live in a coral reef.|I hide in a sea anemone that stings other fish.|I am orange with white stripes.
+greatwhite|Great white shark|Great white shark|🦈|Fish|shark|ocean,hunter,huge,white|I grow new teeth my whole life.|My teeth are shaped like triangles.|I am a huge shark that is grey on top and white underneath.
+whaleshark|Whale shark|Whale shark|🦈|Fish|shark|ocean,huge,spots|I eat tiny plankton.|I am covered in white spots.|I am the biggest fish in the world.
+seahorse|Seahorse|Seahorse|🐟|Fish|seahorse|ocean,reef,tail,tiny|The dad carries the babies in his pouch.|I hold on to sea grass with my curly tail.|My head looks like a horse’s head.
+puffer|Pufferfish|Tetraodontidae|🐡|Fish|reef|reef,poison,spikes,ocean|Some of us are very poisonous to eat.|My teeth look like a beak.|I puff up like a ball when I am scared.
+angler|Anglerfish|Humpback anglerfish|🐟|Fish|deepsea|deepsea,ocean,glow,hunter|I live in the deep, dark sea.|I have a huge mouth with long teeth.|I have a glowing light on my head to trick other fish.
+manta|Manta ray|Giant oceanic manta ray|🐟|Fish|ray|ocean,huge,glider|I sometimes leap right out of the sea.|I strain tiny food out of the water.|I am flat and wide, and I swim like I am flying.
+sockeye|Sockeye salmon|Sockeye salmon|🐟|Fish|river|river,ocean,red,migrate,canada,eggs|I am born in a river and grow up in the ocean.|I swim back up the river to lay my eggs.|I turn bright red with a green head.
+bluetang|Blue tang|Paracanthurus|🐠|Fish|reef|reef,blue,yellow,spikes|I live on coral reefs.|I have a sharp spine near my tail.|I am bright blue with a yellow tail.
+lionfish|Lionfish|Red lionfish|🐠|Fish|reef|reef,venom,stripes,red,spikes,hunter|I hunt small fish on coral reefs.|My long spines have venom.|I have red and white stripes and fins like a fan.
+swordfish|Swordfish|Swordfish|🐟|Fish|billfish|ocean,fast,hunter,huge|I am one of the fastest fish in the sea.|I slash at smaller fish to catch them.|My nose is long and flat like a sword.
+electriceel|Electric eel|Electric eel|🐟|Fish|river|river,southamerica,rainforest,hunter|I live in muddy rivers in South America.|I come up to the top to breathe air.|I can zap other animals with electricity.
+sunfish|Ocean sunfish|Ocean sunfish|🐟|Fish|oddfish|ocean,huge,jellyeater|I eat lots of jellyfish.|I lie on my side at the top of the sea to warm up.|I am a giant round fish that looks like a head with fins.
+seadragon|Leafy seadragon|Leafy seadragon|🐟|Fish|seahorse|ocean,australia,tiny|I live in the sea near Australia.|I am a cousin of the seahorse.|I look just like floating seaweed.
+piranha|Piranha|Red-bellied piranha|🐟|Fish|river|river,southamerica,rainforest,red,family|I live in rivers in South America.|I swim in a big group.|I am a small fish with a red belly and a famous sharp bite.
+hammerhead|Hammerhead shark|Great hammerhead|🦈|Fish|shark|ocean,hunter,huge|I can find stingrays hiding under the sand.|I am a kind of shark.|My head is wide and flat like a hammer.
+sailfish|Sailfish|Sailfish|🐟|Fish|billfish|ocean,fast,hunter,blue|I am one of the fastest fish in the sea.|I have a long, pointed bill.|I have a huge fin on my back like a sail.
+goldfish|Goldfish|Goldfish|🐟|Fish|pond|pet,orange,asia,lake|I come from China.|People keep me in bowls and ponds.|I am a small, shiny orange fish.
+mudskipper|Mudskipper|Mudskipper|🐟|Fish|oddfish|marsh,asia,africa|I live on muddy shores.|I can breathe air through my wet skin.|I am a fish that walks on land with my fins.
+archerfish|Archerfish|Banded archerfish|🐟|Fish|river|river,asia,bugeater,stripes|I live near mangrove trees.|I have very good aim.|I spit water to knock bugs off leaves.
+stingray|Stingray|Southern stingray|🐟|Fish|ray|ocean,venom,tail|I hide under the sand.|I have a stinger on my tail.|I am flat like a pancake with a long thin tail.
+sturgeon|Lake sturgeon|Lake sturgeon|🐟|Fish|river|lake,river,canada,old,huge|I can live for more than 100 years.|I live at the bottom of big lakes and rivers in Canada.|I have bony plates instead of scales, and whiskers under my nose.
+pike|Northern pike|Northern pike|🐟|Fish|river|lake,canada,hunter,green,spots|I hide in the weeds and wait.|I live in lakes in Canada.|I am a long green fish with a mouth full of sharp teeth.
+axolotl|Axolotl|Axolotl|🦎|Amphibian|salamander|lake,regrow,pink,pet,swimmer|I can grow back a leg if I lose one.|I have feathery gills on my head.|I am a salamander that stays in the water my whole life.
+treefrog|Red-eyed tree frog|Red-eyed tree frog|🐸|Amphibian|frog|rainforest,trees,green,red,night,orange|I sleep on leaves in the daytime.|I have sticky orange toes.|I am a green frog with big red eyes.
+bullfrog|American bullfrog|American bullfrog|🐸|Amphibian|frog|lake,canada,loud,huge,green|My tadpoles can take two years to grow up.|My call sounds like jug-o-rum.|I am the biggest frog in Canada.
+poisonfrog|Golden poison frog|Golden poison frog|🐸|Amphibian|frog|rainforest,southamerica,poison,yellow,tiny|I live in the rainforest in Colombia.|My bright colour warns animals not to eat me.|I am a tiny yellow frog with very strong poison.
+spottedsal|Spotted salamander|Spotted salamander|🦎|Amphibian|salamander|forest,canada,spots,yellow,night|I hide under logs most of the year.|On rainy spring nights I walk to a pond to lay eggs.|I am a black salamander with two rows of yellow spots.
+newt|Eastern newt|Eastern newt|🦎|Amphibian|salamander|lake,forest,canada,poison,orange,spots|I live in water, then on land, then in water again.|My skin tastes bad to animals that try to eat me.|When I am young and live on land, I am bright orange and called a red eft.
+firesal|Fire salamander|Fire salamander|🦎|Amphibian|salamander|forest,europe,poison,yellow,spots|I live in forests in Europe.|My skin makes poison.|I am a shiny black salamander with big yellow patches.
+toad|American toad|American toad|🐸|Amphibian|frog|backyard,canada,bugeater,loud,tongue|I catch bugs with my sticky tongue.|My call is a long, high trill.|I have dry, bumpy brown skin.
+peeper|Spring peeper|Spring peeper|🐸|Amphibian|frog|forest,canada,loud,tiny,marsh|I am one of the first frogs to sing in spring.|I am only as long as a paperclip.|I am a tiny frog with an X on my back, and I say peep.
+woodfrog|Wood frog|Wood frog|🐸|Amphibian|frog|forest,canada,arctic,snow,ice|I live farther north than any other frog in North America.|I can freeze solid in winter and wake up in spring.|I am a brown frog with a dark mask across my eyes.
+hellbender|Hellbender|Hellbender|🦎|Amphibian|salamander|river,huge,swimmer|I breathe through my wrinkly skin.|I hide under big rocks in clean rivers.|I am the biggest salamander in North America.
+glassfrog|Glass frog|Glass frog|🐸|Amphibian|frog|rainforest,trees,green,tiny,night|I live in the rainforest.|I sleep under leaves in the daytime.|My belly is see-through, so you can see my insides.
+mudpuppy|Mudpuppy|Common mudpuppy|🦎|Amphibian|salamander|lake,river,canada,swimmer,red,ice|I stay awake under the ice all winter.|I live at the bottom of lakes and rivers my whole life.|I am a salamander with bushy red gills.
+tomatofrog|Tomato frog|Dyscophus antongilii|🐸|Amphibian|frog|madagascar,red|I live only in Madagascar.|I puff up when I am scared.|I am round and bright red like a tomato.
+strawberryfrog|Strawberry poison frog|Strawberry poison-dart frog|🐸|Amphibian|frog|rainforest,poison,red,blue,tiny|I live in the rainforest in Central America.|The mom carries her tadpoles on her back.|I am a tiny red frog, often with blue legs.
+goliathfrog|Goliath frog|Goliath frog|🐸|Amphibian|frog|africa,river,huge,rainforest|I live by rivers in Africa.|I can jump very far.|I am the biggest frog in the world.
+giantsal|Japanese giant salamander|Japanese giant salamander|🦎|Amphibian|salamander|asia,river,huge,night,fisheater,swimmer|I live in cold rivers in Japan.|I come out at night to catch fish.|I am one of the biggest salamanders in the world.
+tigersal|Tiger salamander|Tiger salamander|🦎|Amphibian|salamander|burrow,bugeater,yellow,spots,night|I live in a burrow underground.|I eat worms and bugs.|I am a big, dark salamander with yellow blotches.
+graytreefrog|Gray treefrog|Gray treefrog|🐸|Amphibian|frog|canada,trees,colourchange,forest,backyard,green|I can change from grey to green.|I have sticky toe pads for climbing.|I am a bumpy tree frog that lives in Ontario.
+monarch|Monarch butterfly|Monarch butterfly|🦋|Insect|butterfly|migrate,orange,backyard,canada,poison|I start life as a striped caterpillar.|I eat milkweed.|I am orange and black, and I fly all the way to Mexico.
+honeybee|Honey bee|Western honey bee|🐝|Insect|bee|backyard,family,yellow,stripes,builder|I dance to tell my sisters where the flowers are.|I live in a hive with a queen.|I make honey.
+ladybug|Ladybug|Coccinella septempunctata|🐞|Insect|beetle|backyard,red,spots,tiny,hunter|I eat lots of aphids.|My bright colour tells birds I taste bad.|I am a small red beetle with black spots.
+dragonfly|Dragonfly|Green darner|🪰|Insect|dragonfly|lake,marsh,hunter,fast,green,migrate|I start my life under the water.|I catch mosquitoes in the air.|I have a long body and four clear wings.
+mantis|Praying mantis|European mantis|🦗|Insect|mantis|backyard,hunter,green,bugeater|I can turn my head to look behind me.|I sit very still and grab bugs.|I hold my front legs like I am praying.
+firefly|Firefly|Firefly|🪲|Insect|beetle|night,glow,backyard,tiny|I am really a kind of beetle.|I come out on summer nights.|My tail end glows with light.
+lunamoth|Luna moth|Luna moth|🦋|Insect|butterfly|night,green,forest,canada,tail|I come out at night.|As a grown-up I have no mouth and do not eat.|I am a big pale green moth with long tails on my wings.
+herculesbeetle|Hercules beetle|Hercules beetle|🪲|Insect|beetle|rainforest,southamerica,horns,huge|I live in the rainforest.|I am very strong for my size.|I am a huge beetle, and the male has a long horn.
+leafcutter|Leafcutter ant|Leafcutter ant|🐜|Insect|ant|rainforest,southamerica,family,builder,tiny|I live in a giant nest with millions of sisters.|I grow fungus for food.|I carry pieces of leaf over my head.
+morpho|Blue morpho butterfly|Morpho menelaus|🦋|Insect|butterfly|rainforest,southamerica,blue,huge|I live in the rainforest.|The under side of my wings is brown with eye spots.|I am a big butterfly with shiny blue wings.
+stickinsect|Stick insect|Phasmatodea|🦗|Insect|stick|planteater,trees,forest,slow|I eat leaves.|I sway like I am blowing in the wind.|I look just like a twig.
+bumblebee|Bumblebee|Bumblebee|🐝|Insect|bee|backyard,yellow,stripes,family,canada|I can shake flowers to get the pollen out.|I am bigger and fuzzier than a honey bee.|I am a round, fuzzy, black and yellow bee.
+octopus|Giant Pacific octopus|Giant Pacific octopus|🐙|Invertebrate|softbody|ocean,smart,colourchange,huge,canada|I have three hearts and blue blood.|I can squeeze through tiny holes.|I have eight arms covered in suckers.
+jellyfish|Moon jellyfish|Aurelia aurita|🪼|Invertebrate|softbody|ocean,glider,slow|I have no brain and no bones.|I drift along in the sea.|I am see-through and shaped like a bell.
+starfish|Starfish|Common starfish|⭐|Invertebrate|spiny|ocean,regrow,orange,slow|I can grow back an arm if I lose one.|I have tiny tube feet underneath.|I am shaped like a star.
+lobster|American lobster|American lobster|🦞|Invertebrate|shelled|ocean,claws,shell,canada,old|I live on the rocky sea floor.|I keep growing my whole life.|I have two big claws and a hard shell.
+hermitcrab|Hermit crab|Hermit crab|🦀|Invertebrate|shelled|ocean,shell,claws,tiny|I have a soft belly.|When I grow, I have to move house.|I live inside an empty snail shell.
+snail|Garden snail|Cornu aspersum|🐌|Invertebrate|softbody|backyard,shell,slow,planteater,europe|I have thousands of tiny teeth on my tongue.|I leave a trail of slime.|I carry a spiral shell on my back.
+tarantula|Tarantula|Brachypelma hamorii|🕷️|Invertebrate|eightlegs|burrow,hunter,bugeater,pet,orange,venom|I can flick itchy hairs at enemies.|I have eight legs and eight eyes.|I am a big, hairy spider.
+earthworm|Earthworm|Earthworm|🪱|Invertebrate|softbody|backyard,burrow,pink,slow|I have no eyes.|I make the soil better for plants.|I am long, pink and wiggly, and I live in the dirt.
+scorpion|Emperor scorpion|Emperor scorpion|🦂|Invertebrate|eightlegs|africa,rainforest,glow,claws,venom,night,hunter|I glow under a special purple light.|I have eight legs and two big claws.|I have a stinger at the end of my curled tail.
+cuttlefish|Cuttlefish|Common cuttlefish|🦑|Invertebrate|softbody|ocean,colourchange,smart,hunter|I squirt ink to escape.|The black part of my eye is shaped like a W.|I can change my colours and patterns in a blink.
+horseshoecrab|Horseshoe crab|Atlantic horseshoe crab|🦀|Invertebrate|shelled|ocean,old,shell,tail,blue|My blood is blue.|My family is older than the dinosaurs.|I have a round shell like a helmet and a long spiky tail.
+mantisshrimp|Mantis shrimp|Odontodactylus scyllarus|🦐|Invertebrate|shelled|reef,ocean,burrow,hunter,fast,green|My eyes are some of the most amazing in the animal world.|I live in a burrow on the reef.|I punch so fast I can crack a crab shell.
+`;
 
-/* Extra animals that only show up in the two "goes together" games */
-const X = [
- {id:"mouse",name:"Mouse",wiki:"House mouse",emoji:"🐭"},
- {id:"trout",name:"Trout",wiki:"Rainbow trout",emoji:"🐟"},
- {id:"cricket",name:"Cricket",wiki:"House cricket",emoji:"🦗"},
- {id:"pigeon",name:"Pigeon",wiki:"Rock dove",emoji:"🕊️"},
- {id:"leopardseal",name:"Leopard seal",wiki:"Leopard seal",emoji:"🦭"},
- {id:"gazelle",name:"Gazelle",wiki:"Thomson's gazelle",emoji:"🦌"},
- {id:"deer",name:"Deer",wiki:"Javan rusa",emoji:"🦌"},
- {id:"seal",name:"Harbour seal",wiki:"Harbor seal",emoji:"🦭"},
- {id:"gartersnake",name:"Garter snake",wiki:"Common garter snake",emoji:"🐍"},
- {id:"frog",name:"Leopard frog",wiki:"Northern leopard frog",emoji:"🐸"},
- {id:"termite",name:"Termites",wiki:"Termite",emoji:"🐜"},
- {id:"rabbit",name:"Rabbit",wiki:"European rabbit",emoji:"🐇"},
- {id:"lemming",name:"Lemming",wiki:"Lemming",emoji:"🐹"},
- {id:"anemone",name:"Sea anemone",wiki:"Sea anemone",emoji:"🪸"},
- {id:"egret",name:"Cattle egret",wiki:"Cattle egret",emoji:"🐦"},
- {id:"cow",name:"Cow",wiki:"Cattle",emoji:"🐄"},
- {id:"cleanershrimp",name:"Cleaner shrimp",wiki:"Lysmata amboinensis",emoji:"🦐"},
- {id:"moray",name:"Moray eel",wiki:"Moray eel",emoji:"🐟"},
- {id:"remora",name:"Remora",wiki:"Remora",emoji:"🐟"},
- {id:"shark",name:"Shark",wiki:"Lemon shark",emoji:"🦈"},
- {id:"ant",name:"Ant",wiki:"Ant",emoji:"🐜"},
- {id:"aphid",name:"Aphids",wiki:"Aphid",emoji:"🐛"},
- {id:"goby",name:"Goby",wiki:"Amblyeleotris",emoji:"🐟"},
- {id:"pistolshrimp",name:"Pistol shrimp",wiki:"Alpheidae",emoji:"🦐"},
- {id:"oxpecker",name:"Oxpecker",wiki:"Red-billed oxpecker",emoji:"🐦"},
- {id:"rhino",name:"Rhino",wiki:"White rhinoceros",emoji:"🦏"}
-];
+/* Extra animals that only appear in the two "goes together" games:
+   id | Name | Wikipedia article | emoji | (optional Commons file name) */
+const EXTRA_DATA = `
+mouse|Mouse|House mouse|🐭
+trout|Trout|Rainbow trout|🐟
+cricket|Cricket|House cricket|🦗
+pigeon|Pigeon|Rock dove|🕊️
+leopardseal|Leopard seal|Leopard seal|🦭
+gazelle|Gazelle|Thomson's gazelle|🦌
+deer|Deer|Javan rusa|🦌
+seal|Harbour seal|Harbor seal|🦭
+ringedseal|Ringed seal|Ringed seal|🦭
+gartersnake|Garter snake|Common garter snake|🐍
+frog|Leopard frog|Northern leopard frog|🐸
+termite|Termites|Termite|🐜
+rabbit|Rabbit|European rabbit|🐇
+lemming|Lemming|Lemming|🐹
+hare|Snowshoe hare|Snowshoe hare|🐇
+aphid|Aphids|Aphid|🐛
+mosquito|Mosquito|Mosquito|🦟
+urchin|Sea urchin|Sea urchin|🪸
+puffadder|Puff adder|Puff adder|🐍
+anemone|Sea anemone|Sea anemone|🪸
+egret|Cattle egret|Cattle egret|🐦
+cow|Cow|Cattle|🐄
+cleanershrimp|Cleaner shrimp|Lysmata amboinensis|🦐
+moray|Moray eel|Moray eel|🐟
+remora|Remora|Remora|🐟
+shark|Shark|Lemon shark|🦈
+ant|Ant|Ant|🐜
+goby|Goby|Amblyeleotris|🐟
+pistolshrimp|Pistol shrimp|Alpheidae|🦐
+oxpecker|Oxpecker|Red-billed oxpecker|🐦
+rhino|Rhino|White rhinoceros|🦏
+mongoose|Banded mongoose|Banded mongoose|🐿️
+warthog|Warthog|Common warthog|🐗
+coyote|Coyote|Coyote|🐺
+badger|Badger|American badger|🦡
+`;
 
-/* [hunter, prey, sentence shown when matched] */
-const HUNT = [
- ["barnowl","mouse","A barn owl hunts mice at night."],
- ["lion","zebra","Lions work together to hunt zebras."],
- ["osprey","trout","An osprey dives to catch fish."],
- ["chameleon","cricket","A chameleon zaps crickets with its tongue."],
- ["peregrine","pigeon","A peregrine falcon catches pigeons in the air."],
- ["leopardseal","penguin","A leopard seal chases penguins in the sea."],
- ["cheetah","gazelle","A cheetah sprints after gazelles."],
- ["komodo","deer","A Komodo dragon can take down a deer."],
- ["orca","seal","Orcas hunt seals."],
- ["gartersnake","frog","A garter snake swallows frogs whole."],
- ["anteater","termite","A giant anteater licks up termites."],
- ["fox","rabbit","A red fox hunts rabbits."],
- ["snowyowl","lemming","A snowy owl hunts lemmings."]
-];
+/* Hunter and prey:  set | hunter | prey | sentence
+   A board never uses two pairs from the same set, so there is
+   only one sensible partner for each card. */
+const HUNT_DATA = `
+smallmammal|barnowl|mouse|A barn owl hunts mice at night.
+smallmammal|fox|rabbit|A red fox hunts rabbits.
+smallmammal|snowyowl|lemming|A snowy owl hunts lemmings.
+smallmammal|lynx|hare|A Canada lynx chases snowshoe hares.
+bigprey|lion|zebra|Lions work together to hunt zebras.
+bigprey|cheetah|gazelle|A cheetah sprints after gazelles.
+bigprey|komodo|deer|A Komodo dragon can take down a deer.
+bigprey|wolf|moose|A wolf pack can hunt a moose.
+fish|osprey|trout|An osprey dives to catch fish.
+fish|grizzly|sockeye|A grizzly bear catches salmon in the river.
+bugs|chameleon|cricket|A chameleon zaps crickets with its tongue.
+bugs|anteater|termite|A giant anteater licks up termites.
+bugs|ladybug|aphid|A ladybug munches aphids.
+bugs|dragonfly|mosquito|A dragonfly snatches mosquitoes in the air.
+birds|peregrine|pigeon|A peregrine falcon catches pigeons in the air.
+seamammal|orca|seal|Orcas hunt seals.
+seamammal|leopardseal|penguin|A leopard seal chases penguins in the sea.
+seamammal|polarbear|ringedseal|A polar bear waits by a hole in the ice for a seal.
+frogs|gartersnake|frog|A garter snake swallows frogs whole.
+shellfish|seaotter|urchin|A sea otter cracks open sea urchins.
+snakes|secretary|puffadder|A secretary bird stomps on snakes.
+jellies|leatherback|jellyfish|A leatherback turtle eats jellyfish.
+`;
 
-/* [partner, partner, sentence shown when matched] */
-const PARTNERS = [
- ["clownfish","anemone","The anemone keeps the clownfish safe. The clownfish keeps it clean."],
- ["egret","cow","Cows stir up bugs in the grass. The egret eats them."],
- ["cleanershrimp","moray","The shrimp cleans the eel and gets a meal."],
- ["remora","shark","The remora rides on the shark and eats its scraps."],
- ["ant","aphid","Ants guard the aphids. Aphids give the ants sweet honeydew."],
- ["goby","pistolshrimp","The shrimp digs the burrow. The goby keeps watch."],
- ["oxpecker","rhino","The oxpecker eats ticks off the rhino."]
-];
+/* Animal helpers:  set | partner | partner | sentence */
+const PARTNER_DATA = `
+anemone|clownfish|anemone|The anemone keeps the clownfish safe. The clownfish keeps it clean.
+riders|egret|cow|Cows stir up bugs in the grass. The egret eats them.
+riders|oxpecker|rhino|The oxpecker eats ticks off the rhino.
+riders|mongoose|warthog|The mongoose eats ticks off the warthog.
+cleaner|cleanershrimp|moray|The shrimp cleans the eel and gets a meal.
+hitchhiker|remora|shark|The remora rides on the shark and eats its scraps.
+farmers|ant|aphid|Ants guard the aphids. Aphids give the ants sweet honeydew.
+burrow|goby|pistolshrimp|The shrimp digs the burrow. The goby keeps watch.
+lookouts|zebra|ostrich|Zebras hear and smell danger. Ostriches spot it from far away.
+hunters|coyote|badger|A coyote and a badger sometimes hunt ground squirrels together.
+`;
+
+/* ============================================================
+   Data loading and the "tricky wrong answers" logic
+   ============================================================ */
+const rows = t => t.trim().split("\n").map(l => l.split("|").map(s => s.trim()));
+const A = rows(ANIMAL_DATA).map(f => ({ id: f[0], name: f[1], wiki: f[2], emoji: f[3], group: f[4], sub: f[5], tags: f[6].split(","), clues: [f[7], f[8], f[9]], file: f[10] || "" }));
+const X = rows(EXTRA_DATA).map(f => ({ id: f[0], name: f[1], wiki: f[2], emoji: f[3], file: f[4] || "" }));
+const pairRows = t => rows(t).map(f => ({ set: f[0], a: f[1], b: f[2], line: f[3] }));
+const HUNT = pairRows(HUNT_DATA), PARTNERS = pairRows(PARTNER_DATA);
+const BY = {}; [...A, ...X].forEach(a => BY[a.id] = a);
+
+const LEVELS = ["Easy", "Medium", "Hard"];
+let level = 0;
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const RELATED = { Lizard: "Reptile", Reptile: "Lizard", Insect: "Invertebrate", Invertebrate: "Insect" };
+const kin = (a, b) => a.group === b.group || RELATED[a.group] === b.group;
+
+/* How alike two animals are. For photos, looks matter most (same
+   group, same subgroup). For clues, shared tags matter most. */
+function alike(a, b, byClues) {
+  let s = 0;
+  if (a.group === b.group) s += byClues ? 4 : 10;
+  else if (RELATED[a.group] === b.group) s += byClues ? 2 : 4;
+  if (a.group === b.group && a.sub === b.sub) s += byClues ? 3 : 6;
+  s += a.tags.filter(t => b.tags.includes(t)).length * (byClues ? 3 : 1);
+  return s + Math.random() * 1.5;
+}
+
+/* Easy: 4 choices. Medium: 5 choices, two close look-alikes plus
+   others from the same group. Hard: 6 choices, all close. */
+function pickChoices(target, byClues) {
+  const n = [3, 4, 5][level];
+  const rest = A.filter(a => a.id !== target.id);
+  const ranked = rest.map(a => ({ a, s: alike(target, a, byClues) })).sort((x, y) => y.s - x.s).map(x => x.a);
+  let lures;
+  if (level === 0) {
+    lures = shuffle(byClues ? rest : rest.filter(a => a.group === target.group)).slice(0, n);
+  } else if (level === 1) {
+    const close = shuffle(ranked.slice(0, 5)).slice(0, 2);
+    const pool = shuffle(rest.filter(a => !close.includes(a) && a.group === target.group));
+    lures = [...close, ...pool.slice(0, n - 2)];
+  } else {
+    lures = shuffle(ranked.slice(0, 8)).slice(0, n);
+  }
+  for (const a of ranked) { if (lures.length >= n) break; if (!lures.includes(a)) lures.push(a); }
+  return shuffle([target, ...lures]);
+}
+
+/* A board of pairs with no two pairs from the same set */
+function pickPairs(list, n) {
+  const seen = new Set(), out = [];
+  for (const p of shuffle(list)) { if (seen.has(p.set)) continue; seen.add(p.set); out.push(p); if (out.length === n) break; }
+  return out;
+}
+/*__DOM__*/
 
 /* ============================================================
    Helpers
    ============================================================ */
-const BY = {}; [...A, ...X].forEach(a => BY[a.id] = a);
 const app = document.getElementById("app");
-const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-
 function h(tag, props, ...kids) {
   const e = document.createElement(tag);
   for (const k in (props || {})) {
@@ -295,15 +486,17 @@ function h(tag, props, ...kids) {
   kids.flat().forEach(c => { if (c == null || c === false) return; e.append(c.nodeType ? c : document.createTextNode(c)); });
   return e;
 }
+const load = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+const save = (k, v) => { try { localStorage.setItem(k, String(v)); } catch (e) {} };
 
-/* ---------- stars ---------- */
-let stars = 0;
-try { stars = parseInt(localStorage.getItem("animal-stars") || "0", 10) || 0; } catch (e) {}
-function addStars(n) { stars += n; try { localStorage.setItem("animal-stars", String(stars)); } catch (e) {} const s = document.querySelector(".stars"); if (s) s.textContent = "⭐ " + stars; }
+/* ---------- stars and level ---------- */
+let stars = parseInt(load("animal-stars", "0"), 10) || 0;
+level = Math.min(2, Math.max(0, parseInt(load("animal-level", "0"), 10) || 0));
+function addStars(n) { stars += n; save("animal-stars", stars); const s = document.querySelector(".stars"); if (s) s.textContent = "⭐ " + stars; }
 
 /* ---------- photos from Wikipedia / Wikimedia Commons ---------- */
 let IMG = {};
-const CACHE_KEY = "animal-photos-v2";
+const CACHE_KEY = "animal-photos-v3";
 const API = "https://en.wikipedia.org/w/api.php";
 
 function readCache() {
@@ -314,14 +507,16 @@ function dropCache() { try { localStorage.removeItem(CACHE_KEY); } catch (e) {} 
 
 async function loadPhotos() {
   const all = [...A, ...X];
-  all.forEach(a => { if (a.file) IMG[a.id] = { src: "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(a.file) + "?width=500", file: a.file }; });
+  const fixed = {};
+  all.forEach(a => { if (a.file) fixed[a.id] = { src: "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(a.file) + "?width=500", file: a.file }; });
+  IMG = Object.assign({}, fixed);
   const cached = readCache();
-  if (cached) { IMG = Object.assign({}, cached, IMG); refreshPhotos(); return; }
+  if (cached) { IMG = Object.assign({}, cached, fixed); refreshPhotos(); return; }
   const found = {};
   try {
     const need = all.filter(a => !a.file);
-    for (let i = 0; i < need.length; i += 45) {
-      const chunk = need.slice(i, i + 45);
+    for (let i = 0; i < need.length; i += 40) {
+      const chunk = need.slice(i, i + 40);
       const url = API + "?action=query&format=json&origin=*&redirects=1&prop=pageimages&piprop=thumbnail%7Cname&pithumbsize=500&pilimit=50&titles=" + encodeURIComponent(chunk.map(a => a.wiki).join("|"));
       const q = ((await (await fetch(url)).json()).query) || {};
       const norm = {}, red = {}, pages = {};
@@ -336,7 +531,7 @@ async function loadPhotos() {
     }
     try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d: found })); } catch (e) {}
   } catch (e) { /* offline: the emoji stand-ins stay */ }
-  IMG = Object.assign({}, found, IMG);
+  IMG = Object.assign({}, found, fixed);
   refreshPhotos();
 }
 
@@ -372,20 +567,10 @@ function finished(title, line, again) {
   screen(title,
     h("div", { class: "done-box" },
       h("div", { class: "em", "aria-hidden": "true" }, "🎉"),
-      h("h2", null, line)),
+      h("h2", null, line),
+      h("p", { class: "count" }, "Level: " + LEVELS[level])),
     h("button", { class: "big", onclick: again }, "Play again"),
     h("button", { class: "big alt", onclick: home }, "Pick another game"));
-}
-function pickChoices(target, sameGroup) {
-  const rest = shuffle(A.filter(a => a.id !== target.id));
-  let others = rest.slice(0, 3);
-  if (sameGroup) {
-    /* lures from the same group first (lizards with lizards), topped up if the group is small */
-    const same = rest.filter(a => a.group === target.group);
-    const diff = rest.filter(a => a.group !== target.group);
-    others = [...same, ...diff].slice(0, 3);
-  }
-  return shuffle([target, ...others]);
 }
 
 /* ============================================================
@@ -402,6 +587,8 @@ function home() {
     h("div", { class: "hero" },
       h("h1", null, "Gabe’s Animal Games"),
       h("div", { class: "stars", "aria-label": "Stars" }, "⭐ " + stars)),
+    h("div", { class: "levels", role: "group", "aria-label": "Level" },
+      LEVELS.map((n, i) => h("button", { class: "lvl" + (i === level ? " on" : ""), "aria-pressed": String(i === level), onclick: () => { level = i; save("animal-level", i); home(); } }, n))),
     h("h2", null, "Guess"),
     h("div", { class: "tiles" },
       tile("🃏", "Flip cards", "See an animal, flip to learn its name", () => flip(true)),
@@ -412,12 +599,14 @@ function home() {
       tile("🐾", "Picture match", "Find the two cards that are the same", memory),
       tile("🦉", "Hunter and prey", "Who eats whom?", () => connect("hunt")),
       tile("🤝", "Animal helpers", "Which animals help each other?", () => connect("partners"))),
-    h("button", { class: "linkish", onclick: credits }, "Photo credits"));
+    h("div", { class: "foot" },
+      h("button", { class: "linkish", onclick: credits }, "Photo credits"),
+      h("button", { class: "linkish", onclick: checkPhotos }, "Photo check")));
   window.scrollTo(0, 0);
 }
 
 /* ============================================================
-   FLIP CARDS
+   FLIP CARDS (no levels)
    ============================================================ */
 function flip(pictureFirst) {
   let deck = shuffle(A), i = 0;
@@ -440,7 +629,10 @@ function flip(pictureFirst) {
    WHO IS THIS?  and  CLUES  (shared quiz engine)
    ============================================================ */
 function quiz(title, useClues, again) {
-  const round = shuffle(A).slice(0, 8);
+  /* the photo game only asks about animals whose photo loaded */
+  const withPhoto = A.filter(a => IMG[a.id]);
+  const pool = (!useClues && withPhoto.length >= 20) ? withPhoto : A;
+  const round = shuffle(pool).slice(0, 8);
   let i = 0, score = 0;
   function ask() {
     const a = round[i];
@@ -457,16 +649,16 @@ function quiz(title, useClues, again) {
       }
     };
     paint();
-    const more = useClues ? h("button", { class: "big alt", onclick: () => { shown++; firstTry = firstTry && true; paint(); if (shown >= 3) more.remove(); } }, "Give me another clue") : null;
-    const choices = h("div", { class: "choices" });
-    pickChoices(a, !useClues).forEach(c => {
+    const more = useClues ? h("button", { class: "big alt", onclick: () => { shown++; paint(); if (shown >= 3) more.remove(); } }, "Give me another clue") : null;
+    const choices = h("div", { class: "choices" + (level > 0 ? " two" : "") });
+    pickChoices(a, useClues).forEach(c => {
       const b = h("button", { class: "choice", onclick: () => {
         if (b.disabled) return;
         if (c.id === a.id) {
           b.classList.add("right");
           choices.querySelectorAll("button").forEach(x => x.disabled = true);
           if (more) more.remove();
-          if (firstTry) { score++; addStars(1); }
+          if (firstTry) { score++; addStars(level + 1); }
           result.append(
             useClues ? photo(a.id, false) : null,
             h("div", { class: "say" }, firstTry ? "Yes! " + a.name + "." : "That’s it. " + a.name + "."),
@@ -479,7 +671,7 @@ function quiz(title, useClues, again) {
       choices.append(b);
     });
     screen(title,
-      h("div", { class: "count" }, "Animal " + (i + 1) + " of " + round.length),
+      h("div", { class: "count" }, LEVELS[level] + ", animal " + (i + 1) + " of " + round.length),
       top, more, choices, result);
   }
   ask();
@@ -488,14 +680,14 @@ function who() { quiz("Who is this?", false, who); }
 function clues() { quiz("Clues", true, clues); }
 
 /* ============================================================
-   PICTURE MATCH (memory)
+   PICTURE MATCH (memory): 6, 8 or 10 pairs
    ============================================================ */
 function memory() {
-  const picks = shuffle(A).slice(0, 6);
+  const picks = shuffle(A).slice(0, [6, 8, 10][level]);
   const cards = shuffle([...picks, ...picks]);
   let open = [], lock = false, found = 0, turns = 0;
   const say = h("div", { class: "say" }, "Tap two cards.");
-  const grid = h("div", { class: "grid c3 small" });
+  const grid = h("div", { class: "grid small " + (level === 0 ? "c3" : "c4") });
   cards.forEach(a => {
     const b = h("button", { class: "mcard", "aria-label": "Card" }, "🐾", photo(a.id, false));
     b.addEventListener("click", () => {
@@ -520,19 +712,19 @@ function memory() {
 }
 
 /* ============================================================
-   HUNTER AND PREY  /  ANIMAL HELPERS  (cards face up)
+   HUNTER AND PREY  /  ANIMAL HELPERS: 4, 5 or 6 pairs, face up
    ============================================================ */
 function connect(kind) {
   const isHunt = kind === "hunt";
   const title = isHunt ? "Hunter and prey" : "Animal helpers";
-  const pairs = shuffle(isHunt ? HUNT : PARTNERS).slice(0, 4);
+  const pairs = pickPairs(isHunt ? HUNT : PARTNERS, [4, 5, 6][level]);
   const partner = {}, line = {};
-  pairs.forEach(([x, y, s]) => { partner[x] = y; partner[y] = x; line[x] = s; line[y] = s; });
-  const ids = shuffle(pairs.flatMap(p => [p[0], p[1]]));
+  pairs.forEach(p => { partner[p.a] = p.b; partner[p.b] = p.a; line[p.a] = p.line; line[p.b] = p.line; });
+  const ids = shuffle(pairs.flatMap(p => [p.a, p.b]));
   let sel = null, found = 0, clean = true;
   const ask = isHunt ? "Tap a hunter, then the animal it eats." : "Tap two animals that help each other.";
   const say = h("div", { class: "say" }, ask);
-  const grid = h("div", { class: "grid c2 small" });
+  const grid = h("div", { class: "grid small " + (level === 2 ? "c3" : "c2") });
   ids.forEach(id => {
     const b = h("button", { class: "ccard" }, photo(id, false), BY[id].name);
     b.addEventListener("click", () => {
@@ -547,7 +739,7 @@ function connect(kind) {
           setTimeout(() => {
             finished(title, clean ? "Every pair, no mistakes!" : "You found every pair.", () => connect(kind));
             const box = document.querySelector(".done-box");
-            pairs.forEach(p => box.append(h("p", null, p[2])));
+            pairs.forEach(p => box.append(h("p", null, p.line)));
           }, 1600);
         }
       } else {
@@ -563,6 +755,21 @@ function connect(kind) {
 }
 
 /* ============================================================
+   PHOTO CHECK (for grown-ups): every animal with its photo
+   ============================================================ */
+function checkPhotos() {
+  const all = [...A, ...X];
+  const missing = all.filter(a => !IMG[a.id]);
+  const grid = h("div", { class: "grid c3 small" });
+  [...missing, ...all.filter(a => IMG[a.id])].forEach(a => {
+    grid.append(h("div", { class: "check" + (IMG[a.id] ? "" : " missing") }, photo(a.id, false), a.name, h("small", null, IMG[a.id] ? (a.group || "Extra") : "No photo found")));
+  });
+  screen("Photo check",
+    h("p", null, "For grown-ups. " + all.length + " animals, " + missing.length + " without a photo. Scroll through and note any photo that does not match its name."),
+    grid);
+}
+
+/* ============================================================
    PHOTO CREDITS (pulled live from Wikimedia Commons)
    ============================================================ */
 async function credits() {
@@ -575,8 +782,8 @@ async function credits() {
   const meta = {};
   const key = s => s.replace(/_/g, " ");
   try {
-    for (let i = 0; i < have.length; i += 45) {
-      const chunk = have.slice(i, i + 45);
+    for (let i = 0; i < have.length; i += 40) {
+      const chunk = have.slice(i, i + 40);
       const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&prop=imageinfo&iiprop=extmetadata&iiextmetadatafilter=Artist%7CLicenseShortName&titles=" + encodeURIComponent(chunk.map(a => "File:" + IMG[a.id].file).join("|"));
       const q = ((await (await fetch(url)).json()).query) || {};
       Object.values(q.pages || {}).forEach(p => {
